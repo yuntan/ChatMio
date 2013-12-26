@@ -78,6 +78,7 @@
     <Compile Include="ChatForm.Designer.cs">
       <DependentUpon>ChatForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MyDebug.cs" />
     <Compile Include="PrintLog.cs" />
     <Compile Include="PrintUsers.cs" />
     <Compile Include="UserInfo.cs" />

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-using System.Diagnostics;
 
 namespace ChatMio
 {
@@ -89,6 +88,8 @@ namespace ChatMio
 		/// <param name="bytRes">受信したコマンド</param>
 		protected void ParseCommand (byte[] bytRes)
 		{
+			MyDebug.WriteLine(this, "コマンドパース開始");
+
 			byte[] bytCmd = new byte[0];										//コンパイルエラーを防ぐため空配列を入れとく
 			bool flag = false;													//先頭発見フラグ
 			for (int i = 0; i < bytRes.Length; i++) {
@@ -102,26 +103,36 @@ namespace ChatMio
 			}
 
 			if (!flag) {														//コマンドの先頭が見つからなかった場合
-				Debug.WriteLine("コマンドの先頭が見つからなかったためパース終了");
+				MyDebug.WriteLine(this, "コマンドの先頭が見つからなかったためパース終了");
 				return;															//終了
 			}
 
-			int id = BitConverter.ToInt16(bytCmd, 2);							//IDを取り出し
-			_lastID = id;
-			int cmd = BitConverter.ToInt16(bytCmd, 4);							//CMDを取り出し
-			int dataLen = BitConverter.ToInt32(bytCmd, 6);						//DATALENを取り出し
+			int id, cmd, dataLen;
+			try {
+				id = BitConverter.ToInt16(bytCmd, 2);							//IDを取り出し
+				MyDebug.WriteLine(this, "コマンドID: {0}", id);
+				_lastID = id;
+				cmd = BitConverter.ToInt16(bytCmd, 4);							//CMDを取り出し
+				MyDebug.WriteLine(this, "コマンドCMD: {0}", cmd);
+				dataLen = BitConverter.ToInt32(bytCmd, 6);						//DATALENを取り出し
+				MyDebug.WriteLine(this, "コマンドDATALEN: {0}", dataLen);
+			}
+			catch (SystemException e) {
+				MyDebug.WriteLine(this, "例外発生 パース失敗 {0}", e);
+				return;
+			}
 
 			switch (cmd) {
 				case 0:															//Message
-					Debug.WriteLine("コマンドを受信 ID: {0}, CMD: {1} (メッセージ), DATALEN: {2}", id, cmd, dataLen);
+					MyDebug.WriteLine(this, "メッセージコマンドを受信");
 
 					if (_userDataReceived) {
 						SendResponse(0, id);									//ユーザー情報受取済みなら"成功"を返す
-						Debug.WriteLine("応答(成功)完了");
+						MyDebug.WriteLine(this, "応答(成功)完了");
 					}
 					else {
 						SendResponse(2, id);									//受け取っていなかったら"Not Ready"
-						Debug.WriteLine("応答(Not Ready)完了");
+						MyDebug.WriteLine(this, "応答(Not Ready)完了");
 					}
 
 					if (MsgReceived != null) {									//イベント発行
@@ -130,44 +141,55 @@ namespace ChatMio
 					break;
 
 				case 1:															//UserInfo
-					Debug.WriteLine("コマンドを受信 ID: {0}, CMD: {1} (ユーザー情報), DATALEN: {2}", id, cmd, dataLen);
+					MyDebug.WriteLine(this, "ユーザー情報コマンドを受信");
 
-					UserData data;
 					try {
-						data = ParseUserData(bytCmd);
+						MyDebug.WriteLine(this,"ユーザー情報パース試行");
+						UserData data = ParseUserData(bytCmd);
+						MyDebug.WriteLine(this,"ユーザー情報パース成功");
 						_userDataReceived = true;								//データ受取完了フラグを立てる
+						_isConnected = true;
 						SendResponse(1, id);									//"Ready"を返す
-						Debug.WriteLine("応答(Ready)完了");
+						MyDebug.WriteLine(this, "応答(Ready)完了");
 
 						if (UserDataReceived != null) {							//イベント発行
 							UserDataReceived(this, new UserDataReceivedEventArgs(data));
 						}
 					}
-					catch {
-						Debug.WriteLine("ユーザー情報パース失敗");				//"失敗"を返す
-						SendResponse(255, id);
-						Debug.WriteLine("応答(失敗)完了");
+					catch (SystemException e) {
+						MyDebug.WriteLine(this, "ユーザー情報パース失敗 {0}", e);
+						SendResponse(255, id);									 //"失敗"を返す
+						MyDebug.WriteLine(this, "応答(失敗)完了");
 					}
 					break;
 
 				case 2:															//Close
-					Debug.WriteLine("コマンドを受信 ID: {0}, CMD: {1} (終了), DATALEN: {2}", id, cmd, dataLen);
+					MyDebug.WriteLine(this, "終了コマンドを受信");
 					if (ChatClosed != null) {
 						ChatClosed(this);										//イベント発行
 					}
+					MyDebug.WriteLine(this, "通信終了");
 					this.Stop();												//通信を閉じる
-					Debug.WriteLine("通信終了");
 					break;
 
 				case 3:															//Response
-					Debug.WriteLine("コマンドを受信 ID: {0}, CMD: {1} (応答), DATALEN: {2}", id, cmd, dataLen);
-					int statusID = BitConverter.ToInt16(bytCmd, 10);
-					int packetID = BitConverter.ToInt16(bytCmd, 12);
+					MyDebug.WriteLine(this, "応答コマンドを受信");
+					int statusID, packetID;
+					try {
+						statusID = BitConverter.ToInt16(bytCmd, 10);
+						MyDebug.WriteLine(this, "statusID: {0}", statusID);
+						packetID = BitConverter.ToInt16(bytCmd, 12);
+						MyDebug.WriteLine(this, "packetID: {0}", packetID);
+					}
+					catch (SystemException e) {
+						MyDebug.WriteLine(this, "応答コマンドのパースに失敗 {0}", e);
+						return;
+					}
 
 					if (statusID == 2) {										//ユーザー情報の要求の場合
-						Debug.WriteLine("ユーザー情報が要求されました");
-						if (SendUserData()) { Debug.WriteLine("ユーザー情報送信完了"); }
-						else { Debug.Fail("ユーザー情報送信失敗"); }
+						MyDebug.WriteLine(this, "ユーザー情報が要求されました");
+						if (SendUserData()) { MyDebug.WriteLine(this, "ユーザー情報送信完了"); }
+						else { MyDebug.WriteLine(this, "ユーザー情報送信失敗"); }
 					}
 
 					// TODO PACKET_ID検証
@@ -178,9 +200,9 @@ namespace ChatMio
 					break;
 
 				case 4:															//Ping
-					Debug.WriteLine("コマンドを受信 ID: {0}, CMD: {1} (Ping), DATALEN: {2}", id, cmd, dataLen);
+					MyDebug.WriteLine(this, "Pingコマンドを受信");
 					SendResponse(0, id);										//"成功"を返す
-					Debug.WriteLine("応答(成功)完了");
+					MyDebug.WriteLine(this, "応答(成功)完了");
 
 					if (PingReceived != null) {
 						PingReceived(this, new PingEventArgs(ChatStatus.Connected));
@@ -191,24 +213,24 @@ namespace ChatMio
 
 		protected UserData ParseUserData (byte[] bytCmd)
 		{
-			int info_num = BitConverter.ToInt16(bytCmd, 10);					//含まれるユーザー情報の数
+			int infoNum = BitConverter.ToInt16(bytCmd, 10);						//含まれるユーザー情報の数
 
 			int offset = 12;													//データ読み取り開始位置
-			var data = new UserData { };
+			var data = new UserData();
 
-			for (int i = 0; i < info_num; i++) {								//ユーザー情報の数だけ繰り返す
-				int info_id = BitConverter.ToInt16(bytCmd, offset);				//情報の種類
+			for (int i = 0; i < infoNum; i++) {									//ユーザー情報の数だけ繰り返す
+				int infoId = BitConverter.ToInt16(bytCmd, offset);				//情報の種類
 				offset += 2;
-				int info_len = BitConverter.ToInt32(bytCmd, offset);			//INFO_BODYの長さ
+				int infoLen = BitConverter.ToInt32(bytCmd, offset);				//INFO_BODYの長さ
 				offset += 4;
 
-				switch (info_id) {
+				switch (infoId) {
 					case 1:														//ユーザー名
-						data.Name = _utf8.GetString(bytCmd, offset, info_len);
+						data.Name = _utf8.GetString(bytCmd, offset, infoLen);
 						break;
 					case 2:														//出身地
 						data.IsFrom = (PrefEnum) Enum.Parse(typeof(PrefEnum),
-								_utf8.GetString(bytCmd, offset, info_len));
+								_utf8.GetString(bytCmd, offset, infoLen));
 						break;
 					case 3:														//フォントの色
 						data.TextColor = (System.Drawing.KnownColor)
@@ -221,7 +243,7 @@ namespace ChatMio
 						// TODO その他の情報、ユーザー定義情報パース実装
 						break;
 				}
-				offset += info_len;
+				offset += infoLen;
 			}
 			return data;
 		}
@@ -233,11 +255,15 @@ namespace ChatMio
 		/// <returns>成功失敗</returns>
 		protected bool SendCommand (byte[] bytCmd)
 		{
+			MyDebug.WriteLine(this, "コマンドの送信試行");
 			try {
 				_netStream.Write(bytCmd, 0, bytCmd.Length);						//ストリームにコマンドを書き出す
+				MyDebug.WriteLine(this, "コマンド送信成功");
 				return true;
 			}
-			catch {
+			catch
+			{
+				MyDebug.WriteLine(this, "コマンド送信失敗");
 				return false;
 			}
 		}
@@ -249,6 +275,7 @@ namespace ChatMio
 		/// <returns>成功失敗</returns>
 		public bool SendMessage (string msg)									//serverからclientにメッセージを送信
 		{
+			MyDebug.WriteLine(this, "メッセージを送信");
 			byte[] buff = new byte[10 + _utf8.GetByteCount(msg)];
 
 			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
@@ -266,6 +293,7 @@ namespace ChatMio
 		/// <returns>成功失敗</returns>
 		public bool SendUserData ()
 		{
+			MyDebug.WriteLine(this, "ユーザー情報を送信");
 			UserData data;
 			if (!UserInfo.Read(Properties.Settings.Default.LastUser, out data)) {//自分のユーザーデータを取得
 				return false;
@@ -333,6 +361,7 @@ namespace ChatMio
 		/// <returns></returns>
 		public bool SendResponse (int statusID, int packetID)
 		{
+			MyDebug.WriteLine(this, "応答の送信");
 			if (statusID != 0 && statusID != 1 && statusID != 2 && statusID != 255) {//規定外のSTATUS_IDでないか確認
 				return false;
 			}
@@ -356,6 +385,7 @@ namespace ChatMio
 		/// <returns>成功失敗</returns>
 		public bool SendPing ()
 		{
+			MyDebug.WriteLine(this, "Pingの送信");
 			byte[] buff = new byte[10];
 
 			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭

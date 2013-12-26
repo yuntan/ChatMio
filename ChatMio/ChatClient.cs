@@ -6,13 +6,14 @@ using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-using System.Diagnostics;
 
 namespace ChatMio
 {
 	class ChatClient : ChatBase
 	{
-		private IPAddress _ipAddr;												//相手マシンのIPアドレス
+		private readonly IPAddress _ipAddr;										//相手マシンのIPアドレス
+		private Thread _connThread;												//接続用スレッド
+		private Thread _readThread;												//待機用スレッド
 
 		/// <summary>
 		/// クライアントのコンストラクタ
@@ -30,47 +31,61 @@ namespace ChatMio
 		/// </summary>
 		public override void Start ()											
 		{
-			Debug.WriteLine("クライアントスタート");
+			MyDebug.WriteLine(this, "クライアントスタート");
 
-			Thread connThread = new Thread(this.ConnectThread);					//接続用スレッドを作成
-			connThread.Start();													//スレッドスタート
+			_connThread = new Thread(this.ConnectThread);						//接続用スレッドを作成
+			_connThread.Start();												//スレッドスタート
 		}
 
-		private void ConnectThread ()
-		{
+		private void ConnectThread ()											//接続用スレッド
+		{																		
+			MyDebug.WriteLine(this, "接続用スレッド開始");
+
 			try {
 				_tcpClient.Connect(_ipAddr, _port);								//サーバーと接続
 				_netStream = _tcpClient.GetStream();
 
 				IPAddress serverIP = ((IPEndPoint) _tcpClient.Client.RemoteEndPoint).Address;
-				Debug.WriteLine("{0}と接続完了", serverIP);
+				MyDebug.WriteLine(this, "{0}と接続完了", serverIP);
 				InvokeConnectedEvent(serverIP.ToString());						//イベント発行
 				_isConnected = true;											//接続済みフラグを立てる
 
-				if (SendUserData()) { Debug.WriteLine("ユーザー情報送信完了"); }//ユーザー情報送信
-				else { Debug.WriteLine("ユーザー情報送信失敗"); }
+				if (SendUserData()) { MyDebug.WriteLine(this, "ユーザー情報送信完了"); }//ユーザー情報送信
+				else { MyDebug.WriteLine(this, "ユーザー情報送信失敗"); }
 
-				Thread readThread = new Thread(this.ReadThread);
-				readThread.Start();												//コマンド受信用スレッドスタート
+				_readThread = new Thread(this.ReadThread);
+				_readThread.Start();												//コマンド受信用スレッドスタート
 			}
-			catch { InvokeConnectionFailedEvent(); }
+			catch (ThreadAbortException e) {
+				MyDebug.WriteLine(this, "接続用スレッドが外部により強制終了 {0}", e);
+			}
+			catch (SystemException e){
+				MyDebug.WriteLine(this, "接続用スレッドが何らかの例外により終了 {0}", e);
+				InvokeConnectionFailedEvent(); 
+			}
 		}
 
 		private void ReadThread ()												//待機用スレッド
 		{
+			MyDebug.WriteLine(this, "待機用スレッド開始");
+
 			try {
 				while (true) {
 					if (_tcpClient.Available > 0) {								//受け取れるデータが存在する場合
+						MyDebug.WriteLine(this, "データ受信開始");
 						var buff = new byte[_tcpClient.Available];
 						_netStream.Read(buff, 0, buff.Length);					//ストリームから読み取り
-						try { ParseCommand(buff); }								//コマンドのパースを試みる
-						catch { Debug.WriteLine("パース失敗"); }
+						ParseCommand(buff);										//コマンドをパース
 					}
 					Thread.Sleep(1000);											//1sごとに実行
 				}
-				
 			}
-			catch { }
+			catch (ThreadAbortException e) {
+				MyDebug.WriteLine(this, "待機用スレッドが外部により強制終了 {0}", e);
+			}
+			catch (SystemException e) {
+				MyDebug.WriteLine(this, "待機用スレッドが何らかの例外により終了 {0}", e);
+			}
 		}
 
 		/// <summary>
@@ -78,6 +93,8 @@ namespace ChatMio
 		/// </summary>
 		public override void Stop ()											
 		{
+			MyDebug.WriteLine(this, "クライアント停止処理を実行");
+
 			byte[] buff = new byte[10];
 
 			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
@@ -85,12 +102,15 @@ namespace ChatMio
 			BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);					//CMD
 			BitConverter.GetBytes(0).CopyTo(buff, 6);							//DATALEN
 
-			try { SendCommand(buff); }
+			try { SendCommand(buff); }											//切断コマンドを送信
 			catch { }
 			finally {
+				if (_connThread != null) { _connThread.Abort(); }				//接続用スレッド中断
+				if (_readThread != null) { _readThread.Abort(); }				//待機用スレッド中断
+
 				if (_netStream != null) { _netStream.Close(); }					//ストリームを閉じる
 				if (_tcpClient != null) { _tcpClient.Close(); }					//クライアント停止
-				Debug.WriteLine("切断完了");
+				MyDebug.WriteLine(this, "切断完了");
 			}
 		}
 	}
