@@ -125,7 +125,7 @@ namespace ChatMio
 
 				iLength = chatBox.Text.Length;
 				chatBox.AppendText(String.Format("{0}\r\n\r\n", msg));			//chatBoxにメッセージを追加
-				chatBox.Select(iLength, msg.Length);						//編集したい文字を選択
+				chatBox.Select(iLength, msg.Length);							//編集したい文字を選択
 				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を変更
 				chatBox.SelectionFont = 										//文字サイズを変更
 						new Font(chatBox.SelectionFont.FontFamily,

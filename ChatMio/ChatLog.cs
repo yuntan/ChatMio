@@ -14,7 +14,7 @@ namespace ChatMio
 		public static string Save (string user, string str)				
 		{
 			string fileName = String.Format(							//ファイル名を指定
-					"chatmio_{0}_{1}.txt", DateTime.Now.ToString("yyMMddhhmmss"), user);
+					"chatmio_{0}_{1}.txt", DateTime.Now.ToString("yyMMdd_HHmmss"), user);
 			using (var w = new StreamWriter(fileName)) {
 				w.Write(str);											//ファイル書き込み
 			}
