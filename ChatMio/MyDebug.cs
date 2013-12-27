@@ -10,6 +10,7 @@ namespace ChatMio
 {
 	class MyDebug
 	{
+		private static bool _usingLogFile;
 		//public static void WriteLine (string msg, params object[] args)
 		//{
 		//	string message = String.Format(msg, args);
@@ -28,8 +29,12 @@ namespace ChatMio
 		{
 			string fileName = String.Format("{0}.log", DateTime.Now.ToString("yyMMdd"));
 
-			using (var w = new StreamWriter(fileName, true)) {
-				w.WriteLine("{0}  {1}", DateTime.Now.ToString("hh:mm:ss"), message);
+			if (!_usingLogFile) {
+				_usingLogFile = true;
+				using (var w = new StreamWriter(fileName, true)) {
+					w.WriteLine("{0}  {1}", DateTime.Now.ToString("hh:mm:ss"), message);
+				}
+				_usingLogFile = false;
 			}
 		}
 	}
