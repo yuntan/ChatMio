@@ -35,6 +35,18 @@ namespace ChatMio
 		{
 			SetPostBtn(false);													//投稿ボタンを無効化する
 
+			//前回起動した時に保存された位置、大きさを取得
+			int x = Settings.Default.ChatFormGeometryX,							
+				y = Settings.Default.ChatFormGeometryY,
+				w = Settings.Default.ChatFormWidth,
+				h = Settings.Default.ChatFormHeight;
+
+			if (x != 0 && y != 0) {												//x,yの値がデフォルトのものではないとき
+				Location = new Point(x, y);										//ウィンドウ位置を設定
+			}
+			if (w > MinimumSize.Width) { Width = w; }							//ウィンドウ幅を設定
+			if (h > MinimumSize.Height) { Height = h; }							//ウィンドウ高さを設定
+
 			var addrListForm = new AddressListForm(Dns.GetHostEntry(Dns.GetHostName()).AddressList);
 			addrListForm.ShowDialog(this);										//IPアドレスダイアログを開く
 
@@ -81,21 +93,32 @@ namespace ChatMio
 
 		private void ChatForm_FormClosing (object sender, FormClosingEventArgs e)//フォームが閉じられようとした時
 		{
-			if (_isConnected) {													//チャットが接続中なら
-				if (MessageBox.Show(this,										//確認ダイアログを表示
-						"チャットを切断してログアウトしますか？", "警告",
-						MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-						MessageBoxDefaultButton.Button2)
-						== DialogResult.No) { 									//Noの場合
-					e.Cancel = true;											//フォームが閉じられるのを阻止
-					return;
-				}
+			if (!_isConnected) { return; }
 
-				ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex));//チャットログを保存する
+			//チャットが接続中の場合
+			if (MessageBox.Show(this,											//確認ダイアログを表示
+				"チャットを切断してログアウトしますか？", "警告",
+				MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+				MessageBoxDefaultButton.Button2)
+			    == DialogResult.No) { 											//Noの場合
+				e.Cancel = true;												//フォームが閉じられるのを阻止
+				return;
 			}
 
-			if (_chat != null) { _chat.Stop(); }							//サーバー又はクライアントを停止
-			_chat = null;													//オブジェクトを破棄
+			//Yesの場合
+			ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex));	//チャットログを保存する
+		}
+
+		private void ChatForm_FormClosed (object sender, FormClosedEventArgs e)
+		{
+			if (_chat != null) { _chat.Stop(); }								//サーバー又はクライアントを停止
+			_chat = null;														//オブジェクトを破棄
+
+			Settings.Default.ChatFormGeometryX = Location.X;					//ウィンドウ位置を記憶
+			Settings.Default.ChatFormGeometryY = Location.Y;
+			Settings.Default.ChatFormWidth = Width;								//ウィンドウの大きさを記憶
+			Settings.Default.ChatFormHeight = Height;
+			Settings.Default.Save();											//設定を保存
 		}
 
 		/* --- GUIのイベントハンドラ --- */

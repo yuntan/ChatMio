@@ -17,5 +17,17 @@
     <Setting Name="Pyon" Description="管理者アカウントか否か" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ChatFormWidth" Description="ユーザーが設定したChatFormの幅" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ChatFormHeight" Description="ユーザーが設定したChatFormの高さ" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ChatFormGeometryX" Description="ユーザーが設定したChatFormの位置X" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ChatFormGeometryY" Description="ユーザーが設定したChatFormの位置Y" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

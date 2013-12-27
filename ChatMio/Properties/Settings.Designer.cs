@@ -102,5 +102,69 @@ namespace ChatMio.Properties {
                 this["Pyon"] = value;
             }
         }
+        
+        /// <summary>
+        /// ユーザーが設定したChatFormの幅
+        /// </summary>
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.SettingsDescriptionAttribute("ユーザーが設定したChatFormの幅")]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ChatFormWidth {
+            get {
+                return ((int)(this["ChatFormWidth"]));
+            }
+            set {
+                this["ChatFormWidth"] = value;
+            }
+        }
+        
+        /// <summary>
+        /// ユーザーが設定したChatFormの高さ
+        /// </summary>
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.SettingsDescriptionAttribute("ユーザーが設定したChatFormの高さ")]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ChatFormHeight {
+            get {
+                return ((int)(this["ChatFormHeight"]));
+            }
+            set {
+                this["ChatFormHeight"] = value;
+            }
+        }
+        
+        /// <summary>
+        /// ユーザーが設定したChatFormの位置X
+        /// </summary>
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.SettingsDescriptionAttribute("ユーザーが設定したChatFormの位置X")]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ChatFormGeometryX {
+            get {
+                return ((int)(this["ChatFormGeometryX"]));
+            }
+            set {
+                this["ChatFormGeometryX"] = value;
+            }
+        }
+        
+        /// <summary>
+        /// ユーザーが設定したChatFormの位置Y
+        /// </summary>
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.SettingsDescriptionAttribute("ユーザーが設定したChatFormの位置Y")]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ChatFormGeometryY {
+            get {
+                return ((int)(this["ChatFormGeometryY"]));
+            }
+            set {
+                this["ChatFormGeometryY"] = value;
+            }
+        }
     }
 }
