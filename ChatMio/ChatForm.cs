@@ -138,16 +138,16 @@ namespace ChatMio
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
 				var d = new AppendSystemMsgCallback(AppendSystemMsg);
-				Invoke(d, new object[] { msg });							//UIスレッドでInvoke
+				Invoke(d, new object[] { msg });								//UIスレッドでInvoke
 			}
 			else {
 				int iLength = chatBox.Text.Length;
-				chatBox.AppendText(String.Format("  {0}\r\n", msg));			//chatBoxにユーザー名を追加
-				chatBox.Select(iLength, msg.Length + 2);						//編集したい文字を選択
+				chatBox.AppendText(String.Format("  /* {0} */\r\n", msg));		//chatBoxにユーザー名を追加
+				chatBox.Select(iLength, msg.Length + 8);						//編集したい文字を選択
 				chatBox.SelectionColor = Color.FromKnownColor(KnownColor.Red);	//文字色を赤に変更
 				chatBox.SelectionFont = 										//文字サイズを12に変更
 						new Font(chatBox.SelectionFont.FontFamily,
-						12, FontStyle.Italic);
+						12, FontStyle.Italic);									//スタイルをイタリック体に
 
 				chatBox.Select(0, 0);											//選択を解除
 			}
