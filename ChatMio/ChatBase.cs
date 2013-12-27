@@ -65,13 +65,13 @@ namespace ChatMio
 		public delegate void PingReceivedHandler (object obj, PingEventArgs e);
 		public event PingReceivedHandler PingReceived;
 
-		protected Encoding _utf8 = Encoding.UTF8;
-		protected int _port = 3100;												//使用するポート
-		protected TcpClient _tcpClient;
-		protected NetworkStream _netStream;
-		protected bool _userDataReceived = false;
-		protected int _lastID = 0;
-		protected bool _isConnected = false;
+		protected Encoding Utf8 = Encoding.UTF8;
+		protected int Port = 3100;												//使用するポート
+		protected TcpClient TcpClient;
+		protected NetworkStream NetStream;
+		protected bool UserDataAvailable = false;
+		protected int LastID = 0;
+		protected bool IsConnected = false;
 
 		abstract public void Start ();
 		abstract public void Stop ();
@@ -87,8 +87,8 @@ namespace ChatMio
 			byte[] bytCmd = new byte[0];										//コンパイルエラーを防ぐため空配列を入れとく
 			bool flag = false;													//先頭発見フラグ
 			for (int i = 0; i < bytRes.Length; i++) {
-				if (bytRes[i] == _utf8.GetBytes("@")[0]
-						&& bytRes[i + 1] == _utf8.GetBytes(":")[0]) {		    //コマンドの先頭を発見
+				if (bytRes[i] == Utf8.GetBytes("@")[0]
+						&& bytRes[i + 1] == Utf8.GetBytes(":")[0]) {		    //コマンドの先頭を発見
 					bytCmd = new byte[bytRes.Length - i];
 					Array.Copy(bytRes, i, bytCmd, 0, bytCmd.Length);			//先頭の前で切る
 					flag = true;												//先頭発見フラグを立てる
@@ -105,7 +105,7 @@ namespace ChatMio
 			try {
 				id = BitConverter.ToInt16(bytCmd, 2);							//IDを取り出し
 				MyDebug.WriteLine(this, "コマンドID: {0}", id);
-				_lastID = id;
+				LastID = id;
 				cmd = BitConverter.ToInt16(bytCmd, 4);							//CMDを取り出し
 				MyDebug.WriteLine(this, "コマンドCMD: {0}", cmd);
 				dataLen = BitConverter.ToInt32(bytCmd, 6);						//DATALENを取り出し
@@ -120,7 +120,7 @@ namespace ChatMio
 				case 0:															//Message
 					MyDebug.WriteLine(this, "メッセージコマンドを受信");
 
-					if (_userDataReceived) {
+					if (UserDataAvailable) {
 						SendResponse(0, id);									//ユーザー情報受取済みなら"成功"を返す
 						MyDebug.WriteLine(this, "応答(成功)完了");
 					}
@@ -130,7 +130,7 @@ namespace ChatMio
 					}
 
 					if (MsgReceived != null) {									//イベント発行
-						MsgReceived(this, new MsgReceivedEventArgs(_utf8.GetString(bytCmd, 10, dataLen)));
+						MsgReceived(this, new MsgReceivedEventArgs(Utf8.GetString(bytCmd, 10, dataLen)));
 					}
 					break;
 
@@ -141,7 +141,7 @@ namespace ChatMio
 						MyDebug.WriteLine(this,"ユーザー情報パース試行");
 						UserData data = ParseUserData(bytCmd);
 						MyDebug.WriteLine(this,"ユーザー情報パース成功");
-						_userDataReceived = true;								//データ受取完了フラグを立てる
+						UserDataAvailable = true;								//データ受取完了フラグを立てる
 						SendResponse(1, id);									//"Ready"を返す
 						MyDebug.WriteLine(this, "応答(Ready)完了");
 
@@ -219,11 +219,11 @@ namespace ChatMio
 
 				switch (infoId) {
 					case 1:														//ユーザー名
-						data.Name = _utf8.GetString(bytCmd, offset, infoLen);
+						data.Name = Utf8.GetString(bytCmd, offset, infoLen);
 						break;
 					case 2:														//出身地
 						data.IsFrom = (PrefEnum) Enum.Parse(typeof(PrefEnum),
-								_utf8.GetString(bytCmd, offset, infoLen));
+								Utf8.GetString(bytCmd, offset, infoLen));
 						break;
 					case 3:														//フォントの色
 						data.TextColor = (System.Drawing.KnownColor)
@@ -248,7 +248,7 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "コマンドの送信試行");
 			try {
-				_netStream.Write(bytCmd, 0, bytCmd.Length);						//ストリームにコマンドを書き出す
+				NetStream.Write(bytCmd, 0, bytCmd.Length);						//ストリームにコマンドを書き出す
 				MyDebug.WriteLine(this, "コマンド送信成功");
 				return true;
 			}
@@ -267,13 +267,13 @@ namespace ChatMio
 		public bool SendMessage (string msg)									//serverからclientにメッセージを送信
 		{
 			MyDebug.WriteLine(this, "メッセージを送信");
-			byte[] buff = new byte[10 + _utf8.GetByteCount(msg)];
+			byte[] buff = new byte[10 + Utf8.GetByteCount(msg)];
 
-			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
-			BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);			//ID
+			Utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
+			BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);			//ID
 			BitConverter.GetBytes((Int16) 0).CopyTo(buff, 4);					//CMD
-			BitConverter.GetBytes(_utf8.GetByteCount(msg)).CopyTo(buff, 6);		//DATALEN
-			_utf8.GetBytes(msg).CopyTo(buff, 10);								//BODY
+			BitConverter.GetBytes(Utf8.GetByteCount(msg)).CopyTo(buff, 6);		//DATALEN
+			Utf8.GetBytes(msg).CopyTo(buff, 10);								//BODY
 
 			return SendCommand(buff);
 		}
@@ -298,19 +298,19 @@ namespace ChatMio
 			// 1: 名前
 			BitConverter.GetBytes((Int16) 1).CopyTo(bodyBuff, index);			//INFO_ID
 			index += 2;
-			c = _utf8.GetByteCount(data.Name);
+			c = Utf8.GetByteCount(data.Name);
 			BitConverter.GetBytes(c).CopyTo(bodyBuff, index);					//INFO_LEN	
 			index += 4;
-			_utf8.GetBytes(data.Name).CopyTo(bodyBuff, index);					//INFO_BODY
+			Utf8.GetBytes(data.Name).CopyTo(bodyBuff, index);					//INFO_BODY
 			index += c;
 
 			// 2: 出身地
 			BitConverter.GetBytes((Int16) 2).CopyTo(bodyBuff, index);			//INFO_ID
 			index += 2;
-			c = _utf8.GetByteCount(data.IsFrom.ToString());
+			c = Utf8.GetByteCount(data.IsFrom.ToString());
 			BitConverter.GetBytes(c).CopyTo(bodyBuff, index);					//INFO_LEN	
 			index += 4;
-			_utf8.GetBytes(data.IsFrom.ToString()).CopyTo(bodyBuff, index);		//INFO_BODY
+			Utf8.GetBytes(data.IsFrom.ToString()).CopyTo(bodyBuff, index);		//INFO_BODY
 			index += c;
 
 			// 3: 文字色
@@ -335,8 +335,8 @@ namespace ChatMio
 
 			byte[] buff = new byte[10 + index + 1];
 
-			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
-			BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);			//ID
+			Utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
+			BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);			//ID
 			BitConverter.GetBytes((Int16) 1).CopyTo(buff, 4);					//CMD
 			BitConverter.GetBytes(index + 1).CopyTo(buff, 6);					//DATALEN
 			Array.Copy(bodyBuff, 0, buff, 10, index + 1);						//BODY
@@ -359,8 +359,8 @@ namespace ChatMio
 
 			byte[] buff = new byte[14];
 
-			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
-			BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);			//ID
+			Utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
+			BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);			//ID
 			BitConverter.GetBytes((Int16) 3).CopyTo(buff, 4);					//CMD
 			BitConverter.GetBytes(4).CopyTo(buff, 6);							//DATALEN
 
@@ -379,8 +379,8 @@ namespace ChatMio
 			MyDebug.WriteLine(this, "Pingの送信");
 			byte[] buff = new byte[10];
 
-			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
-			BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);			//ID
+			Utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
+			BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);			//ID
 			BitConverter.GetBytes((Int16) 4).CopyTo(buff, 4);					//CMD
 			BitConverter.GetBytes(0).CopyTo(buff, 6);							//DATALEN
 

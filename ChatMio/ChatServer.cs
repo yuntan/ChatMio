@@ -60,17 +60,17 @@ namespace ChatMio
 			MyDebug.WriteLine(this, "待機用スレッド開始");
 
 			try {
-				_tcpListener = new TcpListener(MyAddress, _port);
+				_tcpListener = new TcpListener(MyAddress, Port);
 				MyDebug.WriteLine(this, "listenerを開始");
 				_tcpListener.Start();											// 接続を待機(ここで処理が止まる)
 
-				_tcpClient = _tcpListener.AcceptTcpClient();					// 接続要求があった場合受け入れ
+				TcpClient = _tcpListener.AcceptTcpClient();					// 接続要求があった場合受け入れ
 				MyDebug.WriteLine(this, "接続要求あり、受け入れ");
 
-				_netStream = _tcpClient.GetStream();							//NetworkStreamを取得
+				NetStream = TcpClient.GetStream();							//NetworkStreamを取得
 
-				if (!_isConnected) {										//これまで接続されていなかった場合
-					IPAddress clientIP = ((IPEndPoint) _tcpClient.Client.RemoteEndPoint).Address;
+				if (!IsConnected) {										//これまで接続されていなかった場合
+					IPAddress clientIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
 					MyDebug.WriteLine(this, "{0}と接続試行中", clientIP);
 					MyDebug.WriteLine(this, "ユーザーデータを送信");
 					SendUserData();												//ユーザー情報送信
@@ -81,9 +81,9 @@ namespace ChatMio
 
 					var memStream = new MemoryStream();							//一時格納用MemoryStream
 					var buff = new byte[256];
-					while (_netStream.DataAvailable) {
+					while (NetStream.DataAvailable) {
 						MyDebug.WriteLine(this, "_netStream.DataAvailable");
-						int readSize = _netStream.Read(buff, 0, buff.Length);
+						int readSize = NetStream.Read(buff, 0, buff.Length);
 						if (readSize == 0) {									//読み取りサイズが0の場合切断されたと判断
 							MyDebug.WriteLine(this, "readSize == 0  接続をクローズ");
 							InvokeChatClosedEvent();							//イベント発行
@@ -99,11 +99,11 @@ namespace ChatMio
 						MyDebug.WriteLine(this, "バイト長 != 0  コマンドの受信を確認");
 						ParseCommand(bytCmd);
 
-						if (!_isConnected) {									// 接続フラグが立っていなかった場合
-							IPAddress clientIP = ((IPEndPoint) _tcpClient.Client.RemoteEndPoint).Address;
+						if (!IsConnected) {									// 接続フラグが立っていなかった場合
+							IPAddress clientIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
 							MyDebug.WriteLine(this, "{0}と接続完了を確認", clientIP);
 							InvokeConnectedEvent(clientIP.ToString());			//接続済みイベントを発行
-							_isConnected = true;								//接続済みフラグを立てる
+							IsConnected = true;								//接続済みフラグを立てる
 						}
 					}
 					Thread.Sleep(1000);
@@ -124,11 +124,11 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "サーバー停止処理を実行");
 
-			if (_isConnected) {													//接続されていた場合
+			if (IsConnected) {													//接続されていた場合
 				var buff = new byte[10];	  
 
-				_utf8.GetBytes("@:").CopyTo(buff, 0);							//コマンドの先頭
-				BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);		//ID
+				Utf8.GetBytes("@:").CopyTo(buff, 0);							//コマンドの先頭
+				BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);		//ID
 				BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);				//CMD
 				BitConverter.GetBytes(0).CopyTo(buff, 6);						//DATALEN
 
@@ -137,8 +137,8 @@ namespace ChatMio
 
 			if (_svrThread != null) { _svrThread.Interrupt(); }					//サーバースレッドを中断
 
-			if (_netStream != null) { _netStream.Close(); }						//ストリームを閉じる
-			if (_tcpClient != null) { _tcpClient.Close(); }						//クライアント停止
+			if (NetStream != null) { NetStream.Close(); }						//ストリームを閉じる
+			if (TcpClient != null) { TcpClient.Close(); }						//クライアント停止
 			if (_tcpListener != null) { _tcpListener.Stop(); }					//Listenerをストップ
 
 			MyDebug.WriteLine(this, "サーバー停止処理完了");

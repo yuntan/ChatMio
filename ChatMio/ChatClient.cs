@@ -18,7 +18,7 @@ namespace ChatMio
 		/// <exception cref="SocketException"></exception>
 		public ChatClient (string sIpAddr)
 		{
-			_tcpClient = new TcpClient();
+			TcpClient = new TcpClient();
 			_ipAddr = IPAddress.Parse(sIpAddr);
 		}
 
@@ -38,13 +38,13 @@ namespace ChatMio
 			MyDebug.WriteLine(this, "接続用スレッド開始");
 
 			try {
-				_tcpClient.Connect(_ipAddr, _port);								//サーバーと接続
-				_netStream = _tcpClient.GetStream();
+				TcpClient.Connect(_ipAddr, Port);								//サーバーと接続
+				NetStream = TcpClient.GetStream();
 
-				IPAddress serverIP = ((IPEndPoint) _tcpClient.Client.RemoteEndPoint).Address;
+				IPAddress serverIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
 				MyDebug.WriteLine(this, "{0}と接続完了", serverIP);
 				InvokeConnectedEvent(serverIP.ToString());						//イベント発行
-				_isConnected = true;											//接続済みフラグを立てる
+				IsConnected = true;											//接続済みフラグを立てる
 
 				if (SendUserData()) { MyDebug.WriteLine(this, "ユーザー情報送信完了"); }//ユーザー情報送信
 				else { MyDebug.WriteLine(this, "ユーザー情報送信失敗"); }
@@ -67,10 +67,10 @@ namespace ChatMio
 
 			try {
 				while (true) {
-					if (_tcpClient.Available > 0) {								//受け取れるデータが存在する場合
+					if (TcpClient.Available > 0) {								//受け取れるデータが存在する場合
 						MyDebug.WriteLine(this, "データ受信開始");
-						var buff = new byte[_tcpClient.Available];
-						_netStream.Read(buff, 0, buff.Length);					//ストリームから読み取り
+						var buff = new byte[TcpClient.Available];
+						NetStream.Read(buff, 0, buff.Length);					//ストリームから読み取り
 						ParseCommand(buff);										//コマンドをパース
 					}
 					Thread.Sleep(1000);											//1sごとに実行
@@ -91,11 +91,11 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "クライアント停止処理を実行");
 
-			if (_isConnected) {												//接続されていた場合
+			if (IsConnected) {												//接続されていた場合
 				var buff = new byte[10];
 
-				_utf8.GetBytes("@:").CopyTo(buff, 0);						//コマンドの先頭
-				BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);	//ID
+				Utf8.GetBytes("@:").CopyTo(buff, 0);						//コマンドの先頭
+				BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);	//ID
 				BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);			//CMD
 				BitConverter.GetBytes(0).CopyTo(buff, 6);					//DATALEN
 
@@ -104,8 +104,8 @@ namespace ChatMio
 			if (_connThread != null) { _connThread.Abort(); }				//接続用スレッド中断
 			if (_readThread != null) { _readThread.Abort(); }				//待機用スレッド中断
 
-			if (_netStream != null) { _netStream.Close(); }					//ストリームを閉じる
-			if (_tcpClient != null) { _tcpClient.Close(); }					//クライアント停止
+			if (NetStream != null) { NetStream.Close(); }					//ストリームを閉じる
+			if (TcpClient != null) { TcpClient.Close(); }					//クライアント停止
 			MyDebug.WriteLine(this, "切断完了");
 		}
 	}
