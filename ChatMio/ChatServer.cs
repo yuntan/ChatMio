@@ -85,14 +85,12 @@ namespace ChatMio
 
 				while (true) {
 					//送られてきたデータを受信
-					MyDebug.WriteLine(this, "データ受信待機中");
 
 					var memStream = new MemoryStream();							//一時格納用MemoryStream
 					var buff = new byte[256];
-					int readSize;
 					while (_netStream.DataAvailable) {
 						MyDebug.WriteLine(this, "_netStream.DataAvailable");
-						readSize = _netStream.Read(buff, 0, buff.Length);		//バッファに256バイト分データを移す
+						int readSize = _netStream.Read(buff, 0, buff.Length);
 						if (readSize == 0) {									//読み取りサイズが0の場合切断されたと判断
 							MyDebug.WriteLine(this, "readSize == 0  接続をクローズ");
 							InvokeChatClosedEvent();							//イベント発行
@@ -101,7 +99,6 @@ namespace ChatMio
 						}
 						memStream.Write(buff, 0, readSize);						//読み取ったサイズ分だけMemoryStreamに移す
 					}
-					MyDebug.WriteLine(this, "データ受信完了");
 
 					byte[] bytCmd = memStream.ToArray();						//MemoryStreamからByteArrayに移す
 					memStream.Close();											//MemoryStreamを閉じる
@@ -116,6 +113,7 @@ namespace ChatMio
 							_isConnected = true;								//接続済みフラグを立てる
 						}
 					}
+					Thread.Sleep(1000);
 				}
 			}
 			catch (ThreadAbortException e) {
@@ -133,16 +131,18 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "サーバー停止処理を実行");
 
-			byte[] buff = new byte[10];	  // FIXME
+			if (_isConnected) {													//接続されていた場合
+				var buff = new byte[10];	  
 
-			_utf8.GetBytes("@:").CopyTo(buff, 0);								//コマンドの先頭
-			BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);			//ID
-			BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);					//CMD
-			BitConverter.GetBytes(0).CopyTo(buff, 6);							//DATALEN
+				_utf8.GetBytes("@:").CopyTo(buff, 0);							//コマンドの先頭
+				BitConverter.GetBytes((Int16) (++_lastID)).CopyTo(buff, 2);		//ID
+				BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);				//CMD
+				BitConverter.GetBytes(0).CopyTo(buff, 6);						//DATALEN
 
-			SendCommand(buff);													//切断コマンドを送信
+				SendCommand(buff);												//切断コマンドを送信
+			}
 
-			if (_svrThread != null) { _svrThread.Abort(); }						//サーバースレッドを中断
+			if (_svrThread != null) { _svrThread.Interrupt(); }					//サーバースレッドを中断
 
 			if (_netStream != null) { _netStream.Close(); }						//ストリームを閉じる
 			if (_tcpClient != null) { _tcpClient.Close(); }						//クライアント停止
