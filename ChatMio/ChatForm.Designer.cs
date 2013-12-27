@@ -70,6 +70,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.chatBox.BackColor = System.Drawing.Color.Pink;
+			this.chatBox.Font = new System.Drawing.Font("メイリオ", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
 			this.chatBox.ForeColor = System.Drawing.Color.Red;
 			this.chatBox.Location = new System.Drawing.Point(12, 12);
 			this.chatBox.Name = "chatBox";

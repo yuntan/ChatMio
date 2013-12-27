@@ -179,8 +179,10 @@ namespace ChatMio
 				SetPostBtn(false);												//投稿ボタンを使えないようにする
 				_isConnected = false;											//接続済みフラグを下ろす
 
-				AppendSystemMsg(String.Format("\"{0}\"としてチャットログを保存しました",//チャットログを書き出し 
+				AppendSystemMsg(												//チャットログを書き出し
+						String.Format("\"{0}\"としてチャットログを保存しました", 
 						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
+				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
 
 				SetExitMenus(true);												//終了メニューを有効化
 
@@ -240,7 +242,7 @@ namespace ChatMio
 		{
 			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
 				var d = new SetPostBtnCallback(SetPostBtn);
-				Invoke(d, new object[] { enable });						//UIスレッドでInvoke
+				Invoke(d, new object[] { enable });								//UIスレッドでInvoke
 			}
 			else {
 				postButton.Enabled = enable;									//postButton切り替え
@@ -249,9 +251,9 @@ namespace ChatMio
 
 		private void SetExitMenus (bool enable)									//ログアウト・終了メニューの有効無効を切り替える
 		{
-			if (InvokeRequired) {											//非UIスレッドからの呼び出し時
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				var d = new SetExitMenusCallback(SetExitMenus);
-				Invoke(d, new object[] { enable });						//UIスレッドでInvoke
+				Invoke(d, new object[] { enable });								//UIスレッドでInvoke
 			}
 			else {
 				logoutMenu.Enabled = enable;									//logoutMenu切り替え
@@ -295,8 +297,10 @@ namespace ChatMio
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
 			_isConnected = false;												//接続済みフラグを下ろす
 
-			AppendSystemMsg(String.Format("\"{0}\"としてチャットログを保存しました",//チャットログを書き出し 
+			AppendSystemMsg(													//チャットログを書き出し
+					String.Format("\"{0}\"としてチャットログを保存しました\r\n\r\n", 
 					ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
+			chatBox.AppendText("\r\n\r\n");										//空行を2行追加
 			_chatTextIndex = chatBox.Text.Length;								//_chatTextIndex更新
 
 			SetExitMenus(true);													//終了メニュー有効化
