@@ -42,9 +42,7 @@ namespace ChatMio
 				NetStream = TcpClient.GetStream();
 
 				IPAddress serverIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
-				MyDebug.WriteLine(this, "{0}と接続完了", serverIP);
-				InvokeConnectedEvent(serverIP.ToString());						//イベント発行
-				IsConnected = true;												//接続済みフラグを立てる
+				MyDebug.WriteLine(this, "{0}と接続試行中", serverIP);
 
 				if (SendUserData()) { MyDebug.WriteLine(this, "ユーザー情報送信完了"); }//ユーザー情報送信
 				else { MyDebug.WriteLine(this, "ユーザー情報送信失敗"); }
@@ -72,6 +70,13 @@ namespace ChatMio
 						var buff = new byte[TcpClient.Available];
 						NetStream.Read(buff, 0, buff.Length);					//ストリームから読み取り
 						ParseCommand(buff);										//コマンドをパース
+
+						if (!IsConnected) {										// 接続フラグが立っていなかった場合
+							IPAddress serverIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
+							MyDebug.WriteLine(this, "{0}と接続完了を確認", serverIP);
+							InvokeConnectedEvent(serverIP.ToString());			//イベント発行
+							IsConnected = true;									//接続済みフラグを立てる
+						}
 					}
 					Thread.Sleep(1000);											//1sごとに実行
 				}

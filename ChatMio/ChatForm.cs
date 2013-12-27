@@ -10,8 +10,8 @@ namespace ChatMio
 	{
 		private ChatBase _chat;													//サーバー／クライアントオブジェクト格納用変数
 		private bool _isConnected;												//接続済みフラグ
-		private UserData _me;													//自分のUserData
-		private UserData _she;													//相手のUserData
+		private UserData _me = new UserData();									//自分のUserData
+		private UserData _she = new UserData();									//相手のUserData
 		private int _chatTextIndex;												//chatTextの末尾
 
 		private delegate void SetPostBtnCallback (bool enable);					//投稿ボタンの有効無効を切り替えるためのデリゲート
@@ -302,20 +302,23 @@ namespace ChatMio
 				Invoke(new ShowReconnectDialogCallback(ShowReconnectDialog));	//UIスレッドでInvoke
 			}
 			else {
-				if( MessageBox.Show(this, "接続に失敗しました\n再試行しますか？",//やり直すかどうか尋ねる
+				if (MessageBox.Show(this, "接続に失敗しました\n再試行しますか？",//やり直すかどうか尋ねる
 						"失敗", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error,
 						MessageBoxDefaultButton.Button2)
 						== DialogResult.Retry) {								//再試行が選択された場合
 					connectMenu.PerformClick();									//接続ダイアログ再表示
-				}												
+				}
 			}
 		}
 
 		/* --- Server,Clientのイベントハンドラ --- */
 		private void Connected (object obj, ConnectedEventArgs e)				//接続成功時
 		{
-			AppendSystemMsg(_chat.GetType() == typeof(ChatServer) ? 			//サーバー／クライアントで異なるメッセージを出す
-					"{0}からの接続を受け付けました" : "{0}への接続が完了しました");
+			AppendSystemMsg(
+					String.Format(
+					_chat.GetType() == typeof(ChatServer) ? 					//サーバー／クライアントで異なるメッセージを出す
+					"{0}からの接続を受け付けました" : "{0}への接続が完了しました",
+					_she.Name));
 
 			statusLabel.Text = String.Format("{0}に接続完了", e.IpAddr);		//statusLabel更新
 			connectMenu.Text = "切断";										  	//メニューのテキストを更新
@@ -331,7 +334,6 @@ namespace ChatMio
 			connectMenu.Text = "接続";											//メニューのテキストを更新
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
 			_isConnected = false;												//接続済みフラグを下ろす
-			SetPostBtn(false);													//投稿ボタンを無効化する
 			SetCursor(false);													//カーソルを通常のものにする
 			SetConnectMenu(true);												//接続メニューを有効化する
 
