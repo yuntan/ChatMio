@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Diagnostics;
 
 namespace ChatMio
 {
@@ -191,27 +190,31 @@ namespace ChatMio
 		{
 			if (MessageBox.Show(this, "ユーザー情報を削除してよろしいですか？", //確認用ダイアログを表示
 					"ユーザー情報削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation,
-					MessageBoxDefaultButton.Button2) == DialogResult.OK) {		//OKボタン押下時
-				if (UserInfo.Remove(_me.Name)) {								//削除成功時
+					MessageBoxDefaultButton.Button2) == DialogResult.OK) {		// OKボタン押下時
+				if (UserInfo.Remove(_me.Name)) {								// 削除成功時
 					MessageBox.Show(this, "ユーザー情報を削除しました", "",
 							MessageBoxButtons.OK, MessageBoxIcon.Information);
-					this.Close();												//フォームを閉じる
+					this.Close();												// フォームを閉じる
 				}
-				else {															//削除失敗時
+				else {															// 削除失敗時
 					MessageBox.Show(this, "処理が失敗しました", "失敗",
 						MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 		}
 
-		private void logoutMenu_Click (object sender, EventArgs e)				//ログアウトメニュークリック時
+		private void logoutMenu_Click (object sender, EventArgs e)				// ログアウトメニュークリック時
 		{
-			this.Close();														//フォームを閉じる
+			_chat.Stop();														// サーバー／クライアントを停止
+			_chat = null;														// サーバー／クライアントを破棄
+			this.Close();														// フォームを閉じる
 		}
 
-		private void exitMenu_Click (object sender, EventArgs e)				//終了メニュークリック時
+		private void exitMenu_Click (object sender, EventArgs e)				// 終了メニュークリック時
 		{
-			Program.Exit = true;												//アプリケーション終了フラグを立てる
+			_chat.Stop();														// サーバー／クライアントを停止
+			_chat = null;														// サーバー／クライアントを破棄
+			Program.Exit = true;												// アプリケーション終了フラグを立てる
 			this.Close();
 		}
 
