@@ -51,11 +51,11 @@
 			// 
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusLabel});
-			this.statusStrip.Location = new System.Drawing.Point(0, 426);
+			this.statusStrip.Location = new System.Drawing.Point(0, 464);
 			this.statusStrip.Name = "statusStrip";
 			this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 23, 0);
 			this.statusStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.statusStrip.Size = new System.Drawing.Size(361, 22);
+			this.statusStrip.Size = new System.Drawing.Size(409, 22);
 			this.statusStrip.TabIndex = 0;
 			// 
 			// statusLabel
@@ -76,7 +76,7 @@
 			this.chatBox.Name = "chatBox";
 			this.chatBox.ReadOnly = true;
 			this.chatBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-			this.chatBox.Size = new System.Drawing.Size(337, 302);
+			this.chatBox.Size = new System.Drawing.Size(385, 340);
 			this.chatBox.TabIndex = 0;
 			this.chatBox.Text = "";
 			// 
@@ -90,7 +90,7 @@
 			this.postBox.Location = new System.Drawing.Point(6, 20);
 			this.postBox.Multiline = true;
 			this.postBox.Name = "postBox";
-			this.postBox.Size = new System.Drawing.Size(256, 67);
+			this.postBox.Size = new System.Drawing.Size(304, 67);
 			this.postBox.TabIndex = 0;
 			// 
 			// menuButton
@@ -99,7 +99,7 @@
 			this.menuButton.ContextMenuStrip = this.menuStrip;
 			this.menuButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.menuButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.menuButton.Location = new System.Drawing.Point(268, 19);
+			this.menuButton.Location = new System.Drawing.Point(316, 19);
 			this.menuButton.Name = "menuButton";
 			this.menuButton.Size = new System.Drawing.Size(63, 31);
 			this.menuButton.TabIndex = 2;
@@ -174,7 +174,7 @@
 			this.postButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.postButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.postButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.postButton.Location = new System.Drawing.Point(268, 56);
+			this.postButton.Location = new System.Drawing.Point(316, 56);
 			this.postButton.Name = "postButton";
 			this.postButton.Size = new System.Drawing.Size(63, 31);
 			this.postButton.TabIndex = 1;
@@ -191,10 +191,10 @@
 			this.groupBox1.Controls.Add(this.menuButton);
 			this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.groupBox1.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.groupBox1.Location = new System.Drawing.Point(12, 320);
+			this.groupBox1.Location = new System.Drawing.Point(12, 358);
 			this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 3, 3, 12);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(337, 93);
+			this.groupBox1.Size = new System.Drawing.Size(385, 93);
 			this.groupBox1.TabIndex = 0;
 			this.groupBox1.TabStop = false;
 			// 
@@ -203,12 +203,13 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 24F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.Crimson;
-			this.ClientSize = new System.Drawing.Size(361, 448);
+			this.ClientSize = new System.Drawing.Size(409, 486);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.chatBox);
 			this.Controls.Add(this.statusStrip);
 			this.Font = new System.Drawing.Font("メイリオ", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
 			this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+			this.MinimumSize = new System.Drawing.Size(425, 525);
 			this.Name = "ChatForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "ChatMio";
