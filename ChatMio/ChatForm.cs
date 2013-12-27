@@ -376,7 +376,7 @@ namespace ChatMio
 			_isConnected = false;												//接続済みフラグを下ろす
 
 			AppendSystemMsg(													//チャットログを書き出し
-					String.Format("\"{0}\"としてチャットログを保存しました\r\n\r\n",
+					String.Format("\"{0}\"としてチャットログを保存しました",
 					ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 			chatBox.AppendText("\r\n\r\n");										//空行を2行追加
 			_chatTextIndex = chatBox.Text.Length;								//_chatTextIndex更新
