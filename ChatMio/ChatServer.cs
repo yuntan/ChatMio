@@ -46,7 +46,7 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "{0}としてサーバー開始", MyAddress);
 
-			if (_svrThread != null) { _svrThread.Abort(); }
+			if (_svrThread != null) { _svrThread.Interrupt(); }
 
 			_svrThread = new Thread(ServerThread) {IsBackground = true};
 			_svrThread.Start();													//別スレッドで接続待機開始
@@ -64,12 +64,12 @@ namespace ChatMio
 				MyDebug.WriteLine(this, "listenerを開始");
 				_tcpListener.Start();											// 接続を待機(ここで処理が止まる)
 
-				TcpClient = _tcpListener.AcceptTcpClient();					// 接続要求があった場合受け入れ
+				TcpClient = _tcpListener.AcceptTcpClient();						// 接続要求があった場合受け入れ
 				MyDebug.WriteLine(this, "接続要求あり、受け入れ");
 
-				NetStream = TcpClient.GetStream();							//NetworkStreamを取得
+				NetStream = TcpClient.GetStream();								//NetworkStreamを取得
 
-				if (!IsConnected) {										//これまで接続されていなかった場合
+				if (!IsConnected) {												//これまで接続されていなかった場合
 					IPAddress clientIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
 					MyDebug.WriteLine(this, "{0}と接続試行中", clientIP);
 					MyDebug.WriteLine(this, "ユーザーデータを送信");
@@ -99,11 +99,11 @@ namespace ChatMio
 						MyDebug.WriteLine(this, "バイト長 != 0  コマンドの受信を確認");
 						ParseCommand(bytCmd);
 
-						if (!IsConnected) {									// 接続フラグが立っていなかった場合
+						if (!IsConnected) {										// 接続フラグが立っていなかった場合
 							IPAddress clientIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
 							MyDebug.WriteLine(this, "{0}と接続完了を確認", clientIP);
 							InvokeConnectedEvent(clientIP.ToString());			//接続済みイベントを発行
-							IsConnected = true;								//接続済みフラグを立てる
+							IsConnected = true;									//接続済みフラグを立てる
 						}
 					}
 					Thread.Sleep(1000);
@@ -114,6 +114,10 @@ namespace ChatMio
 			}
 			catch (SystemException e) {
 				MyDebug.WriteLine(this, "サーバースレッドが何らかの例外により終了", e);
+				MyDebug.WriteLine(this, "サーバーを再起動します");
+				_svrThread = new Thread(ServerThread) { IsBackground = true };	//サーバーを再起動
+				_svrThread.Start();													
+				MyDebug.WriteLine(this, "サーバーの再起動完了");
 			}
 		}
 
