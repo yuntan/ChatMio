@@ -67,25 +67,15 @@ namespace ChatMio
 
 			bool errFlag = false;													//入力内容が不正であることを示すフラグ
 			//項目を確認
-			if (nameBox.Text == "") {												//nameBoxが空の時
-				errorProvider.SetError(nameBox, "ユーザー名を入力してください");
-				nameBox.Focus();													//nameBoxをフォーカス
-				errFlag = true;														//errFlagを立てる
-			}
-			if (prefectureBox.Text == "") {											//prefectureBoxが空の時
-				errorProvider.SetError(prefectureBox, "出身地を選択してください");
-				prefectureBox.Focus();												//prefectureBoxをフォーカス
-				errFlag = true;														//errFlagを立てる
-			}
-			if (colorBox.Text == "") {												//colorBoxが空の時
-				errorProvider.SetError(colorBox, "文字色を選択してください");
-				colorBox.Focus();													//colorBoxをフォーカス
-				errFlag = true;														//errFlagを立てる
-			}
 			if (passBox.Text == "") {												//passBoxが空の時
 				errorProvider.SetError(passBox, "パスワードを入力してください");
 				passBox.Focus();													//passBoxをフォーカス
 				errFlag = true;														//errFlagを立てる
+			} 
+			if (((int) (sizeBox.Value * 10)) % 5 != 0) {							//値が0.5刻みのものでなかった時
+				errorProvider.SetError(sizeBox, "値は0.5刻みにしてください");
+				sizeBox.Focus();													//sizeBoxをフォーカス
+				errFlag = true;														//errFlagを立てる	
 			}
 			if (passBox.Text == Properties.Settings.Default.Piyo) {					//パスワードが管理者のものと重複していた場合
 				errorProvider.SetError(passBox, "違うパスワードにしてください");
@@ -93,13 +83,23 @@ namespace ChatMio
 				passBox.SelectAll();												//passBox内を全選択
 				errFlag = true;														//errFlagを立てる
 			}
-			if (((int) (sizeBox.Value * 10)) % 5 != 0) {							//値が0.5刻みのものでなかった時
-				errorProvider.SetError(sizeBox, "値は0.5刻みにしてください");
-				sizeBox.Focus();													//sizeBoxをフォーカス
-				errFlag = true;														//errFlagを立てる	
+			if (colorBox.Text == "") {												//colorBoxが空の時
+				errorProvider.SetError(colorBox, "文字色を選択してください");
+				colorBox.Focus();													//colorBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
 			}
-			//errFlagが立っていたら終了
-			if (errFlag) { return; }
+			if (prefectureBox.Text == "") {											//prefectureBoxが空の時
+				errorProvider.SetError(prefectureBox, "出身地を選択してください");
+				prefectureBox.Focus();												//prefectureBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
+			}
+			if (nameBox.Text == "") {												//nameBoxが空の時
+				errorProvider.SetError(nameBox, "ユーザー名を入力してください");
+				nameBox.Focus();													//nameBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
+			}
+
+			if (errFlag) { return; }												//errFlagが立っていたら終了
 
 			//errFlagが立っていない場合
 			UserData data;
