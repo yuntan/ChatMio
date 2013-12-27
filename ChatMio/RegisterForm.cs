@@ -41,13 +41,13 @@ namespace ChatMio
 
 			e.DrawBackground();														//背景を描画
 
-			Rectangle rectangle = new Rectangle(2, e.Bounds.Top + 2,				//正方形を描画
+			var rectangle = new Rectangle(2, e.Bounds.Top + 2,				//正方形を描画
 					e.Bounds.Height - 4, e.Bounds.Height - 4);
 			e.Graphics.FillRectangle(												//単色で正方形を塗りつぶす
 					new SolidBrush(Color.FromKnownColor((KnownColor) e.Index + 1)), rectangle);
 
 			e.Graphics.DrawString(Enum.GetNames(typeof(KnownColor))[e.Index],		//文字を描画
-					new Font("メイリオ", 12), System.Drawing.Brushes.Red, 
+					new Font("メイリオ", 12), Brushes.Red, 
 					new RectangleF(rectangle.Width + 4, e.Bounds.Y,
 					e.Bounds.Width - rectangle.Width - 4, e.Bounds.Height));
 
@@ -58,29 +58,38 @@ namespace ChatMio
 		{
 			errorProvider.Clear();													//エラー表示をクリア
 
-			//項目を確認
+			bool errFlag = false;													//入力内容が不正であることを示すフラグ
+																					//項目を確認
 			if (nameBox.Text == "") {												//nameBoxが空の時
 				errorProvider.SetError(nameBox, "ユーザー名を入力してください");
-				return;
+				nameBox.Focus();													//nameBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
 			}
 			if (prefectureBox.Text == "") {											//prefectureBoxが空の時
 				errorProvider.SetError(prefectureBox, "出身地を選択してください");
-				return;
+				prefectureBox.Focus();												//prefectureBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
 			}
 			if (colorBox.Text == "") {												//colorBoxが空の時
 				errorProvider.SetError(colorBox, "文字色を選択してください");
-				return;
+				colorBox.Focus();													//colorBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
 			}
 			if (passBox.Text == "") {												//passBoxが空の時
 				errorProvider.SetError(passBox, "パスワードを入力してください");
-				return;
+				passBox.Focus();													//passBoxをフォーカス
+				errFlag = true;														//errFlagを立てる
 			}
 			if (passBox.Text == Properties.Settings.Default.Piyo) {					//パスワードが管理者のものと重複していた場合
 				errorProvider.SetError(passBox, "違うパスワードにしてください");
-				return;
+				passBox.Focus();													//passBoxをフォーカス
+				passBox.SelectAll();												//passBox内を全選択
+				errFlag = true;														//errFlagを立てる
 			}
 
-			var data = new UserData();
+			if (errFlag) { return; }
+																					//errFlagが立っていない場合
+			UserData data;
 			if ((!UserInfo.Read(nameBox.Text, out data) && !_modifyMode)			//ユーザー情報の重複がなくかつ修正モードでない場合
 					|| _modifyMode) {												//又は修正モードの場合
 				data.Name = nameBox.Text;											//各コントロールから値を取得してdataに代入
