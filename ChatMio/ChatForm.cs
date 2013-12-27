@@ -28,7 +28,7 @@ namespace ChatMio
 
 		private void ChatForm_Load (object sender, EventArgs e)					//フォームロード時
 		{
-			postButton.Enabled = false;											//投稿ボタンを無効化する
+			SetPostBtn(false);													//投稿ボタンを無効化する
 
 			_chat = new ChatServer();											//ChatServerのインスタンス化
 			var addrListForm = new AddressListForm(((ChatServer) _chat).AddressList);
@@ -246,6 +246,7 @@ namespace ChatMio
 			}
 			else {
 				postButton.Enabled = enable;									//postButton切り替え
+				postBox.Enabled = enable;
 			}
 		}
 
