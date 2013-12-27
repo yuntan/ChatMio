@@ -28,7 +28,7 @@ namespace ChatMio
 			if (!_usingLogFile) {
 				_usingLogFile = true;
 				using (var w = new StreamWriter(fileName, true)) {
-					w.WriteLine("{0}  {1}", DateTime.Now.ToString("hh:mm:ss"), message);
+					w.WriteLine("{0}  {1}", DateTime.Now.ToString("HH:mm:ss"), message);
 				}
 				_usingLogFile = false;
 			}
