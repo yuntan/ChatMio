@@ -112,12 +112,11 @@ namespace ChatMio
 			catch (ThreadAbortException e) {
 				MyDebug.WriteLine(this, "サーバースレッドが外部により強制終了 {0}", e);
 			}
+			catch (ThreadInterruptedException e) {
+				MyDebug.WriteLine(this, "サーバースレッドが外部により強制終了 {0}", e);
+			}
 			catch (SystemException e) {
-				MyDebug.WriteLine(this, "サーバースレッドが何らかの例外により終了", e);
-				MyDebug.WriteLine(this, "サーバーを再起動します");
-				_svrThread = new Thread(ServerThread) { IsBackground = true };	//サーバーを再起動
-				_svrThread.Start();													
-				MyDebug.WriteLine(this, "サーバーの再起動完了");
+				MyDebug.WriteLine(this, "サーバースレッドが何らかの例外により終了 {0}", e);
 			}
 		}
 
