@@ -29,7 +29,7 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "クライアントスタート");
 
-			_connThread = new Thread(ConnectThread);						//接続用スレッドを作成
+			_connThread = new Thread(ConnectThread);							//接続用スレッドを作成
 			_connThread.Start();												//スレッドスタート
 		}
 
@@ -44,13 +44,13 @@ namespace ChatMio
 				IPAddress serverIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;
 				MyDebug.WriteLine(this, "{0}と接続完了", serverIP);
 				InvokeConnectedEvent(serverIP.ToString());						//イベント発行
-				IsConnected = true;											//接続済みフラグを立てる
+				IsConnected = true;												//接続済みフラグを立てる
 
 				if (SendUserData()) { MyDebug.WriteLine(this, "ユーザー情報送信完了"); }//ユーザー情報送信
 				else { MyDebug.WriteLine(this, "ユーザー情報送信失敗"); }
 
 				_readThread = new Thread(ReadThread);
-				_readThread.Start();												//コマンド受信用スレッドスタート
+				_readThread.Start();											//コマンド受信用スレッドスタート
 			}
 			catch (ThreadAbortException e) {
 				MyDebug.WriteLine(this, "接続用スレッドが外部により強制終了 {0}", e);
@@ -91,21 +91,21 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "クライアント停止処理を実行");
 
-			if (IsConnected) {												//接続されていた場合
+			if (IsConnected) {													//接続されていた場合
 				var buff = new byte[10];
 
-				Utf8.GetBytes("@:").CopyTo(buff, 0);						//コマンドの先頭
-				BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);	//ID
-				BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);			//CMD
-				BitConverter.GetBytes(0).CopyTo(buff, 6);					//DATALEN
+				Utf8.GetBytes("@:").CopyTo(buff, 0);							//コマンドの先頭
+				BitConverter.GetBytes((Int16) (++LastID)).CopyTo(buff, 2);		//ID
+				BitConverter.GetBytes((Int16) 2).CopyTo(buff, 4);				//CMD
+				BitConverter.GetBytes(0).CopyTo(buff, 6);						//DATALEN
 
-				SendCommand(buff);											//切断コマンドを送信
+				SendCommand(buff);												//切断コマンドを送信
 			}
-			if (_connThread != null) { _connThread.Abort(); }				//接続用スレッド中断
-			if (_readThread != null) { _readThread.Abort(); }				//待機用スレッド中断
+			if (_connThread != null) { _connThread.Abort(); }					//接続用スレッド中断
+			if (_readThread != null) { _readThread.Abort(); }					//待機用スレッド中断
 
-			if (NetStream != null) { NetStream.Close(); }					//ストリームを閉じる
-			if (TcpClient != null) { TcpClient.Close(); }					//クライアント停止
+			if (NetStream != null) { NetStream.Close(); }						//ストリームを閉じる
+			if (TcpClient != null) { TcpClient.Close(); }						//クライアント停止
 			MyDebug.WriteLine(this, "切断完了");
 		}
 	}

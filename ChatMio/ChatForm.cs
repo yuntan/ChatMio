@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Net;
 using System.Windows.Forms;
 using ChatMio.Properties;
 
@@ -14,7 +15,10 @@ namespace ChatMio
 		private int _chatTextIndex;												//chatTextの末尾
 
 		private delegate void SetPostBtnCallback (bool enable);					//投稿ボタンの有効無効を切り替えるためのデリゲート
+		private delegate void SetConnectMenuCallback (bool enable);				//接続メニューの有効無効を切り替えるためのデリゲート
 		private delegate void SetExitMenusCallback (bool enable);				//終了メニューの有効無効を切り替えるためのデリゲート
+		private delegate void SetCursorCallback (bool waiting);					//カーソルの見た目を切り替えるためのデリゲート
+		private delegate void ShowReconnectDialogCallback ();					//再接続するか尋ねるダイアログを表示するためのデリゲート
 		private delegate void AppendMsgCallback (UserData user, string msg);	//相手又は自分のメッセージを表示する際のデリゲート
 		private delegate void AppendSystemMsgCallback (string msg);				//アプリからのメッセージを表示する際のデリゲート
 
@@ -30,8 +34,7 @@ namespace ChatMio
 		{
 			SetPostBtn(false);													//投稿ボタンを無効化する
 
-			_chat = new ChatServer();											//ChatServerのインスタンス化
-			var addrListForm = new AddressListForm(((ChatServer) _chat).AddressList);
+			var addrListForm = new AddressListForm(Dns.GetHostEntry(Dns.GetHostName()).AddressList);
 			addrListForm.ShowDialog(this);										//IPアドレスダイアログを開く
 
 			StartServer();														//サーバースタート
@@ -72,6 +75,7 @@ namespace ChatMio
 			_chat.Start();														//ChatClient.Startを実行
 
 			statusLabel.Text = String.Format("{0}に接続中です…", ipAddr);		//statusLabel更新
+			SetCursor(true);													//カーソルを待機中のものに変更
 		}
 
 		private void ChatForm_FormClosing (object sender, FormClosingEventArgs e)//フォームが閉じられようとした時
@@ -164,8 +168,9 @@ namespace ChatMio
 		private void connectMenu_Click (object sender, EventArgs e)				//「接続」または「切断」メニューが選択されたとき
 		{
 			if (!_isConnected) {												//接続されていない場合
-				var connForm = new ConnectForm();
-				if (connForm.ShowDialog() == DialogResult.OK) {
+				var connForm = new ConnectForm();								//接続ダイアログ表示
+				if (connForm.ShowDialog() == DialogResult.OK) {					//接続する場合
+					SetConnectMenu(false);										//接続メニューをクリック不可にする
 					_chat.Stop();												//サーバーを停止
 					StartClient(Settings.Default.LastIP);						//クライアントを起動
 				}
@@ -180,7 +185,7 @@ namespace ChatMio
 				_isConnected = false;											//接続済みフラグを下ろす
 
 				AppendSystemMsg(												//チャットログを書き出し
-						String.Format("\"{0}\"としてチャットログを保存しました", 
+						String.Format("\"{0}\"としてチャットログを保存しました",
 						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
 
@@ -201,7 +206,7 @@ namespace ChatMio
 			var regForm = new RegisterForm(_me.Name);
 			regForm.ShowDialog();												//変更用フォームを立ち上げる
 
-			if (UserInfo.Read(Settings.Default.LastUser, out _me)) {	//変更が成功していたら
+			if (UserInfo.Read(Settings.Default.LastUser, out _me)) {			//変更が成功していたら
 				_chat.SendUserData();											//相手にユーザーデータを再送信
 			}
 		}
@@ -241,8 +246,8 @@ namespace ChatMio
 		private void SetPostBtn (bool enable)									//postButtonの有効無効を切り替える
 		{
 			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
-				var d = new SetPostBtnCallback(SetPostBtn);
-				Invoke(d, new object[] { enable });								//UIスレッドでInvoke
+				Invoke(new SetPostBtnCallback(SetPostBtn),						//UIスレッドでInvoke
+						new object[] { enable });
 			}
 			else {
 				postButton.Enabled = enable;									//postButton切り替え
@@ -250,11 +255,22 @@ namespace ChatMio
 			}
 		}
 
+		private void SetConnectMenu (bool enable)								//接続メニューの有効無効を切り替える
+		{
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
+				Invoke(new SetConnectMenuCallback(SetConnectMenu),				//UIスレッドでInvoke
+						new object[] { enable });
+			}
+			else {
+				connectMenu.Enabled = enable;									//connectMenu切り替え
+			}
+		}
+
 		private void SetExitMenus (bool enable)									//ログアウト・終了メニューの有効無効を切り替える
 		{
 			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
-				var d = new SetExitMenusCallback(SetExitMenus);
-				Invoke(d, new object[] { enable });								//UIスレッドでInvoke
+				Invoke(new SetExitMenusCallback(SetExitMenus),					//UIスレッドでInvoke
+						new object[] { enable });
 			}
 			else {
 				logoutMenu.Enabled = enable;									//logoutMenu切り替え
@@ -262,22 +278,66 @@ namespace ChatMio
 			}
 		}
 
+		private void SetCursor (bool waiting)									//カーソルの見た目を切り替える
+		{
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
+				Invoke(new SetCursorCallback(SetCursor),						//UIスレッドでInvoke
+						new object[] { waiting });
+			}
+			else {
+				if (waiting) {													//待ち状態の場合
+					Cursor = Cursors.WaitCursor;								//待ち状態のカーソルに切り替え
+					chatBox.Cursor = Cursors.WaitCursor;
+				}
+				else {															//待ち状態でない場合
+					Cursor = Cursors.Default;									//通常のカーソルに切り替え
+					chatBox.Cursor = Cursors.IBeam;
+				}
+			}
+		}
+
+		private void ShowReconnectDialog ()
+		{
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
+				Invoke(new ShowReconnectDialogCallback(ShowReconnectDialog));	//UIスレッドでInvoke
+			}
+			else {
+				if( MessageBox.Show(this, "接続に失敗しました\n再試行しますか？",//やり直すかどうか尋ねる
+						"失敗", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error,
+						MessageBoxDefaultButton.Button2)
+						== DialogResult.Retry) {								//再試行が選択された場合
+					connectMenu.PerformClick();									//接続ダイアログ再表示
+				}												
+			}
+		}
+
 		/* --- Server,Clientのイベントハンドラ --- */
 		private void Connected (object obj, ConnectedEventArgs e)				//接続成功時
 		{
+			AppendSystemMsg(_chat.GetType() == typeof(ChatServer) ? 			//サーバー／クライアントで異なるメッセージを出す
+					"{0}からの接続を受け付けました" : "{0}への接続が完了しました");
+
 			statusLabel.Text = String.Format("{0}に接続完了", e.IpAddr);		//statusLabel更新
 			connectMenu.Text = "切断";										  	//メニューのテキストを更新
 			SetPostBtn(true);													//投稿ボタンを使えるようにする
 			SetExitMenus(false);												//終了メニュー無効化
 			_isConnected = true;												//接続済みフラグを立てる
+			SetCursor(false);													//カーソルを通常のものにする
+			SetConnectMenu(true);												//接続メニューを有効化する
 		}
 
 		private void ConnectionFailed (object obj)								//接続失敗時
 		{
-			statusLabel.Text = "サーバーへの接続に失敗しました";				//statusLabel更新
 			connectMenu.Text = "接続";											//メニューのテキストを更新
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
 			_isConnected = false;												//接続済みフラグを下ろす
+			SetPostBtn(false);													//投稿ボタンを無効化する
+			SetCursor(false);													//カーソルを通常のものにする
+			SetConnectMenu(true);												//接続メニューを有効化する
+
+			StartServer();														//サーバースタート
+
+			ShowReconnectDialog();												//再試行するかどうか尋ねる
 		}
 
 		private void MsgReceived (object server, MsgReceivedEventArgs e)		//メッセージ受信時
@@ -299,7 +359,7 @@ namespace ChatMio
 			_isConnected = false;												//接続済みフラグを下ろす
 
 			AppendSystemMsg(													//チャットログを書き出し
-					String.Format("\"{0}\"としてチャットログを保存しました\r\n\r\n", 
+					String.Format("\"{0}\"としてチャットログを保存しました\r\n\r\n",
 					ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 			chatBox.AppendText("\r\n\r\n");										//空行を2行追加
 			_chatTextIndex = chatBox.Text.Length;								//_chatTextIndex更新
