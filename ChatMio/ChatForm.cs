@@ -23,8 +23,8 @@ namespace ChatMio
 			_chatTextIndex = 0;
 			_isConnected = false;
 			InitializeComponent();
-			UserInfo.Read(Settings.Default.LastUser, out _me);		//_meに自分のUserDataを格納
-		}																		
+			UserInfo.Read(Settings.Default.LastUser, out _me);					//_meに自分のUserDataを格納
+		}
 
 		private void ChatForm_Load (object sender, EventArgs e)					//フォームロード時
 		{
@@ -40,7 +40,7 @@ namespace ChatMio
 		private void StartServer ()
 		{
 			_chat = new ChatServer();											//ChatServerのインスタンス化
-			((ChatServer) _chat).AddressIndex = Settings.Default.LastIPIndex;//使用するIPアドレスをセット
+			((ChatServer) _chat).AddressIndex = Settings.Default.LastIPIndex;	//使用するIPアドレスをセット
 
 			//デリゲートの登録
 			_chat.Connected += Connected;
@@ -74,6 +74,25 @@ namespace ChatMio
 			statusLabel.Text = String.Format("{0}に接続中です…", ipAddr);		//statusLabel更新
 		}
 
+		private void ChatForm_FormClosing (object sender, FormClosingEventArgs e)//フォームが閉じられようとした時
+		{
+			if (_isConnected) {													//チャットが接続中なら
+				if (MessageBox.Show(this,										//確認ダイアログを表示
+						"チャットを切断してログアウトしますか？", "警告",
+						MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+						MessageBoxDefaultButton.Button2)
+						== DialogResult.No) { 									//Noの場合
+					e.Cancel = true;											//フォームが閉じられるのを阻止
+					return;											
+				}
+
+				ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex));//チャットログを保存する
+			}
+
+				if (_chat != null) { _chat.Stop(); }							//サーバー又はクライアントを停止
+				_chat = null;													//オブジェクトを破棄
+		}
+
 		/* --- GUIのイベントハンドラ --- */
 		private void postButton_Click (object sender, EventArgs e)				//投稿ボタン押下時
 		{
@@ -86,7 +105,7 @@ namespace ChatMio
 					postBox.Text = "";											//投稿ボックスを空にする
 				}
 			}
-			else { statusLabel.Text = "接続されていません"; }				    //接続済みでない場合
+			else { statusLabel.Text = "接続されていません"; }					//接続済みでない場合
 		}
 
 		private void AppendMsg (UserData user, string msg)						//chatBoxにメッセージを追加するメソッド
@@ -114,7 +133,7 @@ namespace ChatMio
 
 				chatBox.Select(0, 0);											//選択を解除
 			}
-		}																		
+		}
 		private void AppendSystemMsg (string msg)								//chatBoxにシステムメッセージを追加するメソッド
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
@@ -145,7 +164,7 @@ namespace ChatMio
 				var connForm = new ConnectForm();
 				if (connForm.ShowDialog() == DialogResult.OK) {
 					_chat.Stop();												//サーバーを停止
-					StartClient(Settings.Default.LastIP);			//クライアントを起動
+					StartClient(Settings.Default.LastIP);						//クライアントを起動
 				}
 			}
 			else {																//接続済みの場合
@@ -201,14 +220,14 @@ namespace ChatMio
 
 		private void logoutMenu_Click (object sender, EventArgs e)				// ログアウトメニュークリック時
 		{
-			_chat.Stop();														// サーバー／クライアントを停止
+			if (_chat != null) { _chat.Stop(); }								// サーバー／クライアントを停止
 			_chat = null;														// サーバー／クライアントを破棄
-			Close();														// フォームを閉じる
+			Close();															// フォームを閉じる
 		}
 
 		private void exitMenu_Click (object sender, EventArgs e)				// 終了メニュークリック時
 		{
-			_chat.Stop();														// サーバー／クライアントを停止
+			if (_chat != null) { _chat.Stop(); }								// サーバー／クライアントを停止
 			_chat = null;														// サーバー／クライアントを破棄
 			Program.Exit = true;												// アプリケーション終了フラグを立てる
 			Close();
@@ -272,7 +291,7 @@ namespace ChatMio
 			connectMenu.Text = "接続";										  	//メニューのテキストを更新
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
 			_isConnected = false;												//接続済みフラグを下ろす
-				
+
 			AppendSystemMsg(String.Format("\"{0}\"としてチャットログを保存しました",//チャットログを書き出し 
 					ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 			_chatTextIndex = chatBox.Text.Length;								//_chatTextIndex更新
