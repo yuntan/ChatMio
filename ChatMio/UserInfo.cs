@@ -238,7 +238,7 @@ namespace ChatMio
 							user["IsFrom"].InnerText);
 					ret.TextColor = (KnownColor) Enum.Parse(typeof(KnownColor),
 							user["TextColor"].InnerText);
-					ret.FontSize = int.Parse(user["FontSize"].InnerText);
+					ret.FontSize = float.Parse(user["FontSize"].InnerText);
 				}
 				else {
 					throw new KeyNotFoundException();
@@ -276,7 +276,7 @@ namespace ChatMio
 					datas[i].Pass = user["Pass"].InnerText;
 					datas[i].IsFrom = (PrefEnum) Enum.Parse(typeof(PrefEnum), user["IsFrom"].InnerText);
 					datas[i].TextColor = (KnownColor) Enum.Parse(typeof(KnownColor), user["TextColor"].InnerText);
-					datas[i].FontSize = int.Parse(user["FontSize"].InnerText);
+					datas[i].FontSize = float.Parse(user["FontSize"].InnerText);
 					i++;
 				}
 

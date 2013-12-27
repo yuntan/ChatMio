@@ -36,21 +36,28 @@
 			this.passBox = new System.Windows.Forms.TextBox();
 			this.textColorLabel = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.fontSizeLabel = new System.Windows.Forms.Label();
 			this.colorBox = new System.Windows.Forms.ComboBox();
 			this.fromLabel = new System.Windows.Forms.Label();
 			this.prefectureBox = new System.Windows.Forms.ComboBox();
+			this.sizeBox = new System.Windows.Forms.NumericUpDown();
 			this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+			this.sizePreviewBox = new System.Windows.Forms.TextBox();
 			this.tableLayoutPanel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.sizeBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+			this.tableLayoutPanel2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// registerButton
 			// 
+			this.registerButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.registerButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.registerButton.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
 			this.registerButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.registerButton.Location = new System.Drawing.Point(35, 245);
-			this.registerButton.Margin = new System.Windows.Forms.Padding(36, 36, 0, 0);
+			this.registerButton.Location = new System.Drawing.Point(33, 286);
+			this.registerButton.Margin = new System.Windows.Forms.Padding(24, 24, 24, 12);
 			this.registerButton.Name = "registerButton";
 			this.registerButton.Size = new System.Drawing.Size(165, 42);
 			this.registerButton.TabIndex = 0;
@@ -60,11 +67,12 @@
 			// 
 			// clearButton
 			// 
+			this.clearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.clearButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.clearButton.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
 			this.clearButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.clearButton.Location = new System.Drawing.Point(246, 245);
-			this.clearButton.Margin = new System.Windows.Forms.Padding(36, 36, 0, 0);
+			this.clearButton.Location = new System.Drawing.Point(250, 286);
+			this.clearButton.Margin = new System.Windows.Forms.Padding(24, 24, 24, 12);
 			this.clearButton.Name = "clearButton";
 			this.clearButton.Size = new System.Drawing.Size(166, 42);
 			this.clearButton.TabIndex = 1;
@@ -146,13 +154,14 @@
 			// 
 			// tableLayoutPanel1
 			// 
-			this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+			this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tableLayoutPanel1.AutoSize = true;
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 170F));
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 230F));
+			this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 4);
+			this.tableLayoutPanel1.Controls.Add(this.fontSizeLabel, 0, 4);
 			this.tableLayoutPanel1.Controls.Add(this.colorBox, 1, 2);
 			this.tableLayoutPanel1.Controls.Add(this.fromLabel, 0, 1);
 			this.tableLayoutPanel1.Controls.Add(this.nameLabel, 0, 0);
@@ -164,13 +173,27 @@
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(27, 27);
 			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(18);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 4;
+			this.tableLayoutPanel1.RowCount = 5;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(400, 192);
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(400, 240);
 			this.tableLayoutPanel1.TabIndex = 20;
+			// 
+			// fontSizeLabel
+			// 
+			this.fontSizeLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
+			this.fontSizeLabel.AutoSize = true;
+			this.fontSizeLabel.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+			this.fontSizeLabel.ForeColor = System.Drawing.Color.WhiteSmoke;
+			this.fontSizeLabel.Location = new System.Drawing.Point(12, 202);
+			this.fontSizeLabel.Margin = new System.Windows.Forms.Padding(0);
+			this.fontSizeLabel.Name = "fontSizeLabel";
+			this.fontSizeLabel.Size = new System.Drawing.Size(145, 28);
+			this.fontSizeLabel.TabIndex = 21;
+			this.fontSizeLabel.Text = "フォントサイズ";
 			// 
 			// colorBox
 			// 
@@ -217,29 +240,104 @@
 			this.prefectureBox.Size = new System.Drawing.Size(200, 32);
 			this.prefectureBox.TabIndex = 1;
 			// 
+			// sizeBox
+			// 
+			this.sizeBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.sizeBox.BackColor = System.Drawing.Color.Pink;
+			this.sizeBox.DecimalPlaces = 1;
+			this.sizeBox.Font = new System.Drawing.Font("メイリオ", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+			this.sizeBox.ForeColor = System.Drawing.Color.Red;
+			this.sizeBox.ImeMode = System.Windows.Forms.ImeMode.Off;
+			this.sizeBox.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
+			this.sizeBox.Location = new System.Drawing.Point(16, 8);
+			this.sizeBox.Margin = new System.Windows.Forms.Padding(16, 3, 3, 3);
+			this.sizeBox.Maximum = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+			this.sizeBox.Minimum = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+			this.sizeBox.Name = "sizeBox";
+			this.sizeBox.Size = new System.Drawing.Size(100, 31);
+			this.sizeBox.TabIndex = 22;
+			this.sizeBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.sizeBox.Value = new decimal(new int[] {
+            12,
+            0,
+            0,
+            0});
+			this.sizeBox.ValueChanged += new System.EventHandler(this.sizeBox_ValueChanged);
+			// 
 			// errorProvider
 			// 
 			this.errorProvider.ContainerControl = this;
+			// 
+			// tableLayoutPanel2
+			// 
+			this.tableLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tableLayoutPanel2.ColumnCount = 2;
+			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+			this.tableLayoutPanel2.Controls.Add(this.sizePreviewBox, 1, 0);
+			this.tableLayoutPanel2.Controls.Add(this.sizeBox, 0, 0);
+			this.tableLayoutPanel2.Location = new System.Drawing.Point(170, 192);
+			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
+			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+			this.tableLayoutPanel2.RowCount = 1;
+			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+			this.tableLayoutPanel2.Size = new System.Drawing.Size(230, 48);
+			this.tableLayoutPanel2.TabIndex = 21;
+			// 
+			// sizePreviewBox
+			// 
+			this.sizePreviewBox.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.sizePreviewBox.BackColor = System.Drawing.Color.Pink;
+			this.sizePreviewBox.Cursor = System.Windows.Forms.Cursors.Default;
+			this.sizePreviewBox.Font = new System.Drawing.Font("メイリオ", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+			this.sizePreviewBox.ForeColor = System.Drawing.Color.Red;
+			this.sizePreviewBox.ImeMode = System.Windows.Forms.ImeMode.Off;
+			this.sizePreviewBox.Location = new System.Drawing.Point(148, 8);
+			this.sizePreviewBox.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
+			this.sizePreviewBox.MaxLength = 2;
+			this.sizePreviewBox.Name = "sizePreviewBox";
+			this.sizePreviewBox.ReadOnly = true;
+			this.sizePreviewBox.Size = new System.Drawing.Size(66, 31);
+			this.sizePreviewBox.TabIndex = 23;
+			this.sizePreviewBox.Text = "Aa";
+			this.sizePreviewBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.sizePreviewBox.WordWrap = false;
 			// 
 			// RegisterForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.Crimson;
-			this.ClientSize = new System.Drawing.Size(449, 317);
+			this.ClientSize = new System.Drawing.Size(449, 349);
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.Controls.Add(this.clearButton);
 			this.Controls.Add(this.registerButton);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.MinimumSize = new System.Drawing.Size(405, 39);
 			this.Name = "RegisterForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "ChatMio ユーザー登録";
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.sizeBox)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+			this.tableLayoutPanel2.ResumeLayout(false);
+			this.tableLayoutPanel2.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -259,6 +357,10 @@
 		private System.Windows.Forms.Label fromLabel;
 		private System.Windows.Forms.ComboBox prefectureBox;
 		private System.Windows.Forms.ErrorProvider errorProvider;
+		private System.Windows.Forms.Label fontSizeLabel;
+		private System.Windows.Forms.NumericUpDown sizeBox;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+		private System.Windows.Forms.TextBox sizePreviewBox;
 
 	}
 }

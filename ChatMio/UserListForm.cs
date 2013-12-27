@@ -40,13 +40,13 @@ namespace ChatMio
 			if (cells.Count == 1) {												//選択中のセルが1つあった場合
 				var regForm = new RegisterForm(									//選択されたセルがある行のユーザー名を指定
 					dataGridView.Rows[cells[0].RowIndex].Cells[0].Value.ToString());
-				regForm.Show();													//変更フォームを表示
+				regForm.ShowDialog(this);										//変更フォームを表示
 
 				if (!UserInfo.ReadAll(out _users)) { 							//ユーザー情報の取得ができなかった場合
 					MessageBox.Show("ユーザー情報の取得に失敗しました");		//ダイアログを表示
 					return;
 				}
-				dataGridView.DataSource = SortUserData(_users);					//dataGridViewを更新
+				dataGridView.DataSource = SortUserData(_users);					//dataGridViewのデータを更新
 			}
 			else {																//セルが選択されていない又は2つ以上選択されている時
 				MessageBox.Show(this, "セルを一つ選択してください", "エラー",
