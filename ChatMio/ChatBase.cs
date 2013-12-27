@@ -148,7 +148,6 @@ namespace ChatMio
 						UserData data = ParseUserData(bytCmd);
 						MyDebug.WriteLine(this,"ユーザー情報パース成功");
 						_userDataReceived = true;								//データ受取完了フラグを立てる
-						_isConnected = true;
 						SendResponse(1, id);									//"Ready"を返す
 						MyDebug.WriteLine(this, "応答(Ready)完了");
 
