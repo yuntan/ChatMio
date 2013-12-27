@@ -29,7 +29,7 @@ namespace ChatMio
 		{
 			MyDebug.WriteLine(this, "クライアントスタート");
 
-			_connThread = new Thread(this.ConnectThread);						//接続用スレッドを作成
+			_connThread = new Thread(ConnectThread);						//接続用スレッドを作成
 			_connThread.Start();												//スレッドスタート
 		}
 

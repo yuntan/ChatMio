@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using ChatMio.Properties;
 
 namespace ChatMio
 {
 	public partial class ChatForm : Form
 	{
 		private ChatBase _chat;													//サーバー／クライアントオブジェクト格納用変数
-		private bool _isConnected = false;										//接続済みフラグ
+		private bool _isConnected;												//接続済みフラグ
 		private UserData _me;													//自分のUserData
 		private UserData _she;													//相手のUserData
-		private int _chatTextIndex = 0;											//chatTextの末尾
+		private int _chatTextIndex;												//chatTextの末尾
 
-		private delegate void OpenAddrListCallback ();							//IPアドレスのリストを開くためのデリゲート
 		private delegate void SetPostBtnCallback (bool enable);					//投稿ボタンの有効無効を切り替えるためのデリゲート
 		private delegate void SetExitMenusCallback (bool enable);				//終了メニューの有効無効を切り替えるためのデリゲート
 		private delegate void AppendMsgCallback (UserData user, string msg);	//相手又は自分のメッセージを表示する際のデリゲート
@@ -20,8 +20,10 @@ namespace ChatMio
 
 		public ChatForm ()
 		{
+			_chatTextIndex = 0;
+			_isConnected = false;
 			InitializeComponent();
-			UserInfo.Read(Properties.Settings.Default.LastUser, out _me);		//_meに自分のUserDataを格納
+			UserInfo.Read(Settings.Default.LastUser, out _me);		//_meに自分のUserDataを格納
 		}																		
 
 		private void ChatForm_Load (object sender, EventArgs e)					//フォームロード時
@@ -38,16 +40,16 @@ namespace ChatMio
 		private void StartServer ()
 		{
 			_chat = new ChatServer();											//ChatServerのインスタンス化
-			((ChatServer) _chat).AddressIndex = Properties.Settings.Default.LastIPIndex;//使用するIPアドレスをセット
+			((ChatServer) _chat).AddressIndex = Settings.Default.LastIPIndex;//使用するIPアドレスをセット
 
 			//デリゲートの登録
-			_chat.Connected += new ChatServer.ConnectedHandler(this.Connected);
-			_chat.ConnectionFailed += new ChatServer.ConnectionFailedHander(this.ConnectionFailed);
-			_chat.MsgReceived += new ChatServer.MsgReceivedHandler(this.MsgReceived);
-			_chat.UserDataReceived += new ChatServer.UserDataReceivedHandler(this.UserDataReceived);
-			_chat.ChatClosed += new ChatServer.ChatClosedHandler(this.ChatClosed);
-			_chat.ResponseReceived += new ChatServer.ResponseReceivedHandler(this.ResponseReceived);
-			_chat.PingReceived += new ChatServer.PingReceivedHandler(this.PingReceived);
+			_chat.Connected += Connected;
+			_chat.ConnectionFailed += ConnectionFailed;
+			_chat.MsgReceived += MsgReceived;
+			_chat.UserDataReceived += UserDataReceived;
+			_chat.ChatClosed += ChatClosed;
+			_chat.ResponseReceived += ResponseReceived;
+			_chat.PingReceived += PingReceived;
 
 			_chat.Start();														//ChatServer.Startを実行
 
@@ -59,13 +61,13 @@ namespace ChatMio
 			_chat = new ChatClient(ipAddr);										//ChatClientのインスタンス化
 
 			//デリゲートの登録
-			_chat.Connected += new ChatClient.ConnectedHandler(this.Connected);
-			_chat.ConnectionFailed += new ChatClient.ConnectionFailedHander(this.ConnectionFailed);
-			_chat.MsgReceived += new ChatClient.MsgReceivedHandler(this.MsgReceived);
-			_chat.UserDataReceived += new ChatClient.UserDataReceivedHandler(this.UserDataReceived);
-			_chat.ChatClosed += new ChatClient.ChatClosedHandler(this.ChatClosed);
-			_chat.ResponseReceived += new ChatClient.ResponseReceivedHandler(this.ResponseReceived);
-			_chat.PingReceived += new ChatClient.PingReceivedHandler(this.PingReceived);
+			_chat.Connected += Connected;
+			_chat.ConnectionFailed += ConnectionFailed;
+			_chat.MsgReceived += MsgReceived;
+			_chat.UserDataReceived += UserDataReceived;
+			_chat.ChatClosed += ChatClosed;
+			_chat.ResponseReceived += ResponseReceived;
+			_chat.PingReceived += PingReceived;
 
 			_chat.Start();														//ChatClient.Startを実行
 
@@ -91,7 +93,7 @@ namespace ChatMio
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
 				var d = new AppendMsgCallback(AppendMsg);
-				this.Invoke(d, new object[] { user, msg });						//UIスレッドでInvoke
+				Invoke(d, new object[] { user, msg });						//UIスレッドでInvoke
 			}
 			else {
 				int iLength = chatBox.Text.Length;
@@ -117,7 +119,7 @@ namespace ChatMio
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
 				var d = new AppendSystemMsgCallback(AppendSystemMsg);
-				this.Invoke(d, new object[] { msg });							//UIスレッドでInvoke
+				Invoke(d, new object[] { msg });							//UIスレッドでInvoke
 			}
 			else {
 				int iLength = chatBox.Text.Length;
@@ -143,7 +145,7 @@ namespace ChatMio
 				var connForm = new ConnectForm();
 				if (connForm.ShowDialog() == DialogResult.OK) {
 					_chat.Stop();												//サーバーを停止
-					StartClient(Properties.Settings.Default.LastIP);			//クライアントを起動
+					StartClient(Settings.Default.LastIP);			//クライアントを起動
 				}
 			}
 			else {																//接続済みの場合
@@ -175,7 +177,7 @@ namespace ChatMio
 			var regForm = new RegisterForm(_me.Name);
 			regForm.ShowDialog();												//変更用フォームを立ち上げる
 
-			if (UserInfo.Read(Properties.Settings.Default.LastUser, out _me)) {	//変更が成功していたら
+			if (UserInfo.Read(Settings.Default.LastUser, out _me)) {	//変更が成功していたら
 				_chat.SendUserData();											//相手にユーザーデータを再送信
 			}
 		}
@@ -188,7 +190,7 @@ namespace ChatMio
 				if (UserInfo.Remove(_me.Name)) {								// 削除成功時
 					MessageBox.Show(this, "ユーザー情報を削除しました", "",
 							MessageBoxButtons.OK, MessageBoxIcon.Information);
-					this.Close();												// フォームを閉じる
+					Close();												// フォームを閉じる
 				}
 				else {															// 削除失敗時
 					MessageBox.Show(this, "処理が失敗しました", "失敗",
@@ -201,7 +203,7 @@ namespace ChatMio
 		{
 			_chat.Stop();														// サーバー／クライアントを停止
 			_chat = null;														// サーバー／クライアントを破棄
-			this.Close();														// フォームを閉じる
+			Close();														// フォームを閉じる
 		}
 
 		private void exitMenu_Click (object sender, EventArgs e)				// 終了メニュークリック時
@@ -209,14 +211,14 @@ namespace ChatMio
 			_chat.Stop();														// サーバー／クライアントを停止
 			_chat = null;														// サーバー／クライアントを破棄
 			Program.Exit = true;												// アプリケーション終了フラグを立てる
-			this.Close();
+			Close();
 		}
 
 		private void SetPostBtn (bool enable)									//postButtonの有効無効を切り替える
 		{
 			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
 				var d = new SetPostBtnCallback(SetPostBtn);
-				this.Invoke(d, new object[] { enable });						//UIスレッドでInvoke
+				Invoke(d, new object[] { enable });						//UIスレッドでInvoke
 			}
 			else {
 				postButton.Enabled = enable;									//postButton切り替え
@@ -225,9 +227,9 @@ namespace ChatMio
 
 		private void SetExitMenus (bool enable)									//ログアウト・終了メニューの有効無効を切り替える
 		{
-			if (this.InvokeRequired) {											//非UIスレッドからの呼び出し時
+			if (InvokeRequired) {											//非UIスレッドからの呼び出し時
 				var d = new SetExitMenusCallback(SetExitMenus);
-				this.Invoke(d, new object[] { enable });						//UIスレッドでInvoke
+				Invoke(d, new object[] { enable });						//UIスレッドでInvoke
 			}
 			else {
 				logoutMenu.Enabled = enable;									//logoutMenu切り替え

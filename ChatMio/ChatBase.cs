@@ -28,7 +28,6 @@ namespace ChatMio
 		/// <summary>
 		/// 派生クラスからConnectionFailedを発行するためのメソッド
 		/// </summary>
-		/// <param name="s">IPアドレス</param>
 		protected void InvokeConnectionFailedEvent ()
 		{
 			if (ConnectionFailed != null) {
@@ -163,16 +162,16 @@ namespace ChatMio
 						ChatClosed(this);										//イベント発行
 					}
 					MyDebug.WriteLine(this, "通信終了");
-					this.Stop();												//通信を閉じる
+					Stop();														//通信を閉じる
 					break;
 
 				case 3:															//Response
 					MyDebug.WriteLine(this, "応答コマンドを受信");
-					int statusID, packetID;
+					int statusID;
 					try {
 						statusID = BitConverter.ToInt16(bytCmd, 10);
 						MyDebug.WriteLine(this, "statusID: {0}", statusID);
-						packetID = BitConverter.ToInt16(bytCmd, 12);
+						int packetID = BitConverter.ToInt16(bytCmd, 12);
 						MyDebug.WriteLine(this, "packetID: {0}", packetID);
 					}
 					catch (SystemException e) {
@@ -233,9 +232,7 @@ namespace ChatMio
 					case 4:														//フォントサイズ
 						data.FontSize = BitConverter.ToSingle(bytCmd, offset) / 10;
 						break;
-					default:
 						// TODO その他の情報、ユーザー定義情報パース実装
-						break;
 				}
 				offset += infoLen;
 			}

@@ -9,9 +9,6 @@ namespace ChatMio
 {
 	class ChatServer : ChatBase
 	{
-
-		private string _hostName;												//自分のマシンのホスト名
-
 		private int _myIpIndex;													//AddressIndexの内部変数
 		private TcpListener _tcpListener;
 		private Thread _svrThread;												//サーバースレッド
@@ -24,10 +21,9 @@ namespace ChatMio
 			set
 			{
 				if (AddressList == null) { return; }							//AddressListが空の場合設定不可
-				if (value < AddressList.Length) {								//値がAddressListの大きさを超えていないかチェック
-					_myIpIndex = value;
-					MyAddress = AddressList[value];
-				}
+				if (value >= AddressList.Length) return;						//値がAddressListの大きさを超えていないかチェック
+				_myIpIndex = value;
+				MyAddress = AddressList[value];
 			}
 		}
 
@@ -36,15 +32,15 @@ namespace ChatMio
 		/// </summary>
 		public ChatServer ()
 		{
-			_hostName = Dns.GetHostName();										// 自分のマシンのホスト名
-			MyDebug.WriteLine(this, "自分のマシンのホスト名 {0}", _hostName);
+			string hostName = Dns.GetHostName();
+			MyDebug.WriteLine(this, "自分のマシンのホスト名 {0}", hostName);
 
-			AddressList = Dns.GetHostEntry(_hostName).AddressList;				// 自分のマシンのIPアドレスを取得
+			AddressList = Dns.GetHostEntry(hostName).AddressList;				// 自分のマシンのIPアドレスを取得
 			MyAddress = AddressList.Last();										//アドレスのリストの最後の項目を指定しておく
 		}
 
 		/// <summary>
-		/// サーバーをスタート&待機
+		/// サーバーをスタート& 待機
 		/// </summary>
 		public override void Start ()
 		{
@@ -52,8 +48,7 @@ namespace ChatMio
 
 			if (_svrThread != null) { _svrThread.Abort(); }
 
-			_svrThread = new Thread(this.ServerThread);
-			_svrThread.IsBackground = true;										//バックグラウンドスレッドとして設定
+			_svrThread = new Thread(ServerThread) {IsBackground = true};
 			_svrThread.Start();													//別スレッドで接続待機開始
 		}
 
