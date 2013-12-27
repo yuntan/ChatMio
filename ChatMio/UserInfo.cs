@@ -18,7 +18,12 @@ namespace ChatMio
 	public class UserData											
 	{
 		[DisplayName("ユーザー名"), Column]
-		public string Name { get; set; }
+		public string Name {
+			get { return _name; }
+			set { if (value != null) { _name = value.Trim(); } }			//前後の空白を除去する
+		}
+
+		private string _name;
 
 		[DisplayName("パスワード"), Browsable(false), Column]
 		public string Pass { get; set; }
@@ -224,7 +229,7 @@ namespace ChatMio
 				var xmlDoc = new XmlDocument();
 				xmlDoc.Load("UserInfo.xml");
 
-				string xPath = "//User[Name='" + name + "']";
+				string xPath = "//User[Name='" + name.Trim() + "']";
 				var user = xmlDoc.SelectSingleNode(xPath) as XmlElement;
 				if (user != null) {
 					ret.Name = user["Name"].InnerText;
@@ -242,9 +247,7 @@ namespace ChatMio
 				return true;
 			}
 			catch (SystemException) {
-				ret.Name = null; ret.IsFrom = PrefEnum.Hokkaido; ret.Pass = null;
-				ret.TextColor = KnownColor.Red; ret.FontSize = 0;
-
+				ret = new UserData();
 				return false;
 			}
 		}
@@ -291,7 +294,7 @@ namespace ChatMio
 				var xmlDoc = new XmlDocument();
 				xmlDoc.Load("UserInfo.xml");
 
-				string xPath = "//User[Name='" + name + "']";
+				string xPath = "//User[Name='" + name.Trim() + "']";
 				var oldUser = xmlDoc.SelectSingleNode(xPath);
 
 				if (oldUser != null) {
