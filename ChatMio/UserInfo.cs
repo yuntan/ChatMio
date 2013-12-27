@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Xml;
-using System.Xml.XPath;
 using System.Collections.Generic;
 using System.Drawing;
 using System.ComponentModel;
 using System.IO;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using System.Linq;
 using System.Diagnostics;
 
 namespace ChatMio

@@ -9,10 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace ChatMio.Properties {
-    using System;
-    
-    
-    /// <summary>
+	/// <summary>
     ///   ローカライズされた文字列などを検索するための、厳密に型指定されたリソース クラスです。
     /// </summary>
     // このクラスは StronglyTypedResourceBuilder クラスが ResGen
