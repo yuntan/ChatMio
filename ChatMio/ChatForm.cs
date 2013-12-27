@@ -14,6 +14,7 @@ namespace ChatMio
 		private UserData _she = new UserData();									//相手のUserData
 		private int _chatTextIndex;												//chatTextの末尾
 
+		private delegate void ChangeTitleBarTextCallback (string text);			//タイトルバーのテキストを変えるためのデリゲート
 		private delegate void SetPostBtnCallback (bool enable);					//投稿ボタンの有効無効を切り替えるためのデリゲート
 		private delegate void SetConnectMenuCallback (bool enable);				//接続メニューの有効無効を切り替えるためのデリゲート
 		private delegate void SetExitMenusCallback (bool enable);				//終了メニューの有効無効を切り替えるためのデリゲート
@@ -180,6 +181,7 @@ namespace ChatMio
 
 				AppendSystemMsg(String.Format("{0}との接続を切断しました", _she.Name));
 
+				ChangeTitleBarText(String.Format("ChatMio"));					//タイトルバーのテキストを更新
 				connectMenu.Text = "接続";										//メニューのテキストを更新
 				SetPostBtn(false);												//投稿ボタンを使えないようにする
 				_isConnected = false;											//接続済みフラグを下ろす
@@ -241,6 +243,17 @@ namespace ChatMio
 			_chat = null;														// サーバー／クライアントを破棄
 			Program.Exit = true;												// アプリケーション終了フラグを立てる
 			Close();
+		}
+
+		private void ChangeTitleBarText (string str)							//タイトルバーのテキストを変える
+		{
+			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
+				Invoke(new ChangeTitleBarTextCallback(ChangeTitleBarText),		//UIスレッドでInvoke
+						new object[] { str });
+			}
+			else {
+				Text = str;														//タイトルバーのテキスト変更
+			}
 		}
 
 		private void SetPostBtn (bool enable)									//postButtonの有効無効を切り替える
@@ -320,6 +333,7 @@ namespace ChatMio
 					"{0}からの接続を受け付けました" : "{0}への接続が完了しました",
 					_she.Name));
 
+			ChangeTitleBarText(String.Format("ChatMio  /*{0}との会話*/", _she.Name));//タイトルバーのテキストを更新
 			statusLabel.Text = String.Format("{0}に接続完了", e.IpAddr);		//statusLabel更新
 			connectMenu.Text = "切断";										  	//メニューのテキストを更新
 			SetPostBtn(true);													//投稿ボタンを使えるようにする
@@ -356,6 +370,7 @@ namespace ChatMio
 		{
 			AppendSystemMsg(String.Format("{0}が接続を切断しました", _she.Name));//chatBoxにシステムメッセージ追加
 
+			ChangeTitleBarText(String.Format("ChatMio"));						//タイトルバーのテキストを更新
 			connectMenu.Text = "接続";										  	//メニューのテキストを更新
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
 			_isConnected = false;												//接続済みフラグを下ろす
