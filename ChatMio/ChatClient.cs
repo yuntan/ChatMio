@@ -51,10 +51,10 @@ namespace ChatMio
 				_readThread.Start();											//コマンド受信用スレッドスタート
 			}
 			catch (ThreadAbortException e) {
-				MyDebug.WriteLine(this, "接続用スレッドが外部により強制終了 {0}", e);
+				MyDebug.WriteLine(this, "接続用スレッドが外部により強制終了\n{0}", e);
 			}
 			catch (SystemException e) {
-				MyDebug.WriteLine(this, "接続用スレッドが何らかの例外により終了 {0}", e);
+				MyDebug.WriteLine(this, "接続用スレッドが何らかの例外により終了\n{0}", e);
 				InvokeConnectionFailedEvent();
 			}
 		}
@@ -82,10 +82,10 @@ namespace ChatMio
 				}
 			}
 			catch (ThreadAbortException e) {
-				MyDebug.WriteLine(this, "待機用スレッドが外部により強制終了 {0}", e);
+				MyDebug.WriteLine(this, "待機用スレッドが外部により強制終了\n{0}", e);
 			}
 			catch (SystemException e) {
-				MyDebug.WriteLine(this, "待機用スレッドが何らかの例外により終了 {0}", e);
+				MyDebug.WriteLine(this, "待機用スレッドが何らかの例外により終了\n{0}", e);
 			}
 		}
 
