@@ -83,14 +83,14 @@ namespace ChatMio
 						MessageBoxDefaultButton.Button2)
 						== DialogResult.No) { 									//Noの場合
 					e.Cancel = true;											//フォームが閉じられるのを阻止
-					return;											
+					return;
 				}
 
 				ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex));//チャットログを保存する
 			}
 
-				if (_chat != null) { _chat.Stop(); }							//サーバー又はクライアントを停止
-				_chat = null;													//オブジェクトを破棄
+			if (_chat != null) { _chat.Stop(); }							//サーバー又はクライアントを停止
+			_chat = null;													//オブジェクトを破棄
 		}
 
 		/* --- GUIのイベントハンドラ --- */
@@ -131,9 +131,11 @@ namespace ChatMio
 						new Font(chatBox.SelectionFont.FontFamily,
 						user.FontSize, FontStyle.Bold);
 
-				chatBox.Select(0, 0);											//選択を解除
+				iLength = chatBox.Text.Length;
+				chatBox.Select(iLength, iLength);								//選択を解除
 			}
 		}
+
 		private void AppendSystemMsg (string msg)								//chatBoxにシステムメッセージを追加するメソッド
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
@@ -149,7 +151,8 @@ namespace ChatMio
 						new Font(chatBox.SelectionFont.FontFamily,
 						12, FontStyle.Italic);									//スタイルをイタリック体に
 
-				chatBox.Select(0, 0);											//選択を解除
+				iLength = chatBox.Text.Length;
+				chatBox.Select(iLength, iLength);								//選択を解除
 			}
 		}
 
