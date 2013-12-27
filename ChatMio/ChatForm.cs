@@ -112,20 +112,20 @@ namespace ChatMio
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
 				var d = new AppendMsgCallback(AppendMsg);
-				Invoke(d, new object[] { user, msg });						//UIスレッドでInvoke
+				Invoke(d, new object[] { user, msg });							//UIスレッドでInvoke
 			}
 			else {
 				int iLength = chatBox.Text.Length;
-				chatBox.AppendText(String.Format("{0}: ", user.Name));			//chatBoxにユーザー名を追加
-				chatBox.Select(iLength, user.Name.Length + 2);					//編集したい文字を選択
-				chatBox.SelectionColor = Color.FromKnownColor(KnownColor.Red);	//文字色を赤に変更
+				chatBox.AppendText(String.Format("  ::{0}::\r\n", user.Name));	//chatBoxにユーザー名を追加
+				chatBox.Select(iLength, user.Name.Length + 6);					//編集したい文字を選択
+				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を赤に変更
 				chatBox.SelectionFont = 										//文字サイズを11に変更
 						new Font(chatBox.SelectionFont.FontFamily,
-						11, FontStyle.Italic);
+						11, FontStyle.Bold);
 
-				iLength += user.Name.Length + 2;
-				chatBox.AppendText(String.Format("{0}\r\n", msg));				//chatBoxにメッセージを追加
-				chatBox.Select(iLength, msg.Length);							//編集したい文字を選択
+				iLength = chatBox.Text.Length;
+				chatBox.AppendText(String.Format("{0}\r\n\r\n", msg));			//chatBoxにメッセージを追加
+				chatBox.Select(iLength, msg.Length);						//編集したい文字を選択
 				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を変更
 				chatBox.SelectionFont = 										//文字サイズを変更
 						new Font(chatBox.SelectionFont.FontFamily,
