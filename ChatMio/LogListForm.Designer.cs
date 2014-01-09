@@ -44,7 +44,7 @@
 			this.printButton.Name = "printButton";
 			this.printButton.Size = new System.Drawing.Size(165, 42);
 			this.printButton.TabIndex = 30;
-			this.printButton.Text = "印刷";
+			this.printButton.Text = "閲覧/印刷";
 			this.printButton.UseVisualStyleBackColor = true;
 			this.printButton.Click += new System.EventHandler(this.printButton_Click);
 			// 
