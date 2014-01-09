@@ -78,6 +78,12 @@
     <Compile Include="ChatForm.Designer.cs">
       <DependentUpon>ChatForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="LogListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LogListForm.Designer.cs">
+      <DependentUpon>LogListForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MyDebug.cs" />
     <Compile Include="PrintLog.cs" />
     <Compile Include="PrintUsers.cs" />
@@ -107,6 +113,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ChatForm.resx">
       <DependentUpon>ChatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LogListForm.resx">
+      <DependentUpon>LogListForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
