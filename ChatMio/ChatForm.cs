@@ -14,6 +14,7 @@ namespace ChatMio
 		private UserData _she = new UserData();									//相手のUserData
 		private int _chatTextIndex;												//chatTextの末尾
 
+		#region デリゲートの定義
 		private delegate void ChangeTitleBarTextCallback (string text);			//タイトルバーのテキストを変えるためのデリゲート
 		private delegate void SetPostBtnCallback (bool enable);					//投稿ボタンの有効無効を切り替えるためのデリゲート
 		private delegate void SetConnectMenuCallback (bool enable);				//接続メニューの有効無効を切り替えるためのデリゲート
@@ -22,7 +23,9 @@ namespace ChatMio
 		private delegate void ShowReconnectDialogCallback ();					//再接続するか尋ねるダイアログを表示するためのデリゲート
 		private delegate void AppendMsgCallback (UserData user, string msg);	//相手又は自分のメッセージを表示する際のデリゲート
 		private delegate void AppendSystemMsgCallback (string msg);				//アプリからのメッセージを表示する際のデリゲート
+		#endregion
 
+		#region フォームロード時の処理
 		public ChatForm ()
 		{
 			_chatTextIndex = 0;
@@ -52,7 +55,9 @@ namespace ChatMio
 
 			StartServer();														//サーバースタート
 		}
+		#endregion
 
+		#region サーバー・クライアント開始処理
 		private void StartServer ()
 		{
 			_chat = new ChatServer();											//ChatServerのインスタンス化
@@ -90,7 +95,9 @@ namespace ChatMio
 			statusLabel.Text = String.Format("{0}に接続中です…", ipAddr);		//statusLabel更新
 			SetCursor(true);													//カーソルを待機中のものに変更
 		}
+		#endregion
 
+		#region フォームクローズ時の処理
 		private void ChatForm_FormClosing (object sender, FormClosingEventArgs e)//フォームが閉じられようとした時
 		{
 			if (!_isConnected) { return; }
@@ -120,8 +127,9 @@ namespace ChatMio
 			Settings.Default.ChatFormHeight = Height;
 			Settings.Default.Save();											//設定を保存
 		}
+		#endregion
 
-		/* --- GUIのイベントハンドラ --- */
+		#region GUIのイベントハンドラ
 		private void postButton_Click (object sender, EventArgs e)				//投稿ボタン押下時
 		{
 			if (_isConnected) {													//接続済みの場合
@@ -136,6 +144,11 @@ namespace ChatMio
 			else { statusLabel.Text = "接続されていません"; }					//接続済みでない場合
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="user"></param>
+		/// <param name="msg"></param>
 		private void AppendMsg (UserData user, string msg)						//chatBoxにメッセージを追加するメソッド
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
@@ -218,6 +231,12 @@ namespace ChatMio
 
 				StartServer();													//サーバーを開始
 			}
+		}
+
+		private void chatLogMenu_Click (object sender, EventArgs e)				//「チャットログ表示」メニュークリック時
+		{
+			var logLstForm = new LogListForm();
+			logLstForm.ShowDialog();											//チャットログ一覧フォーム表示
 		}
 
 		private void userListMenu_Click (object sender, EventArgs e)			//「ユーザー一覧」メニュークリック時
@@ -346,8 +365,9 @@ namespace ChatMio
 				}
 			}
 		}
+		#endregion
 
-		/* --- Server,Clientのイベントハンドラ --- */
+		#region Server,Clientのイベントハンドラ
 		private void Connected (object obj, ConnectedEventArgs e)				//接続成功時
 		{
 			AppendSystemMsg(
@@ -418,5 +438,6 @@ namespace ChatMio
 		{
 
 		}
+		#endregion
 	}
 }

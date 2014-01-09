@@ -42,6 +42,7 @@
 			this.exitMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.postButton = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.chatLogMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip.SuspendLayout();
 			this.menuStrip.SuspendLayout();
 			this.groupBox1.SuspendLayout();
@@ -113,13 +114,14 @@
 			this.menuStrip.Font = new System.Drawing.Font("Meiryo UI", 9.75F, System.Drawing.FontStyle.Bold);
 			this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectMenu,
+            this.chatLogMenu,
             this.userListMenu,
             this.modifyMenu,
             this.removeUserMenu,
             this.logoutMenu,
             this.exitMenu});
 			this.menuStrip.Name = "contextMenuStrip1";
-			this.menuStrip.Size = new System.Drawing.Size(172, 136);
+			this.menuStrip.Size = new System.Drawing.Size(172, 180);
 			// 
 			// connectMenu
 			// 
@@ -198,6 +200,14 @@
 			this.groupBox1.TabIndex = 0;
 			this.groupBox1.TabStop = false;
 			// 
+			// chatLogMenu
+			// 
+			this.chatLogMenu.ForeColor = System.Drawing.Color.Red;
+			this.chatLogMenu.Name = "chatLogMenu";
+			this.chatLogMenu.Size = new System.Drawing.Size(171, 22);
+			this.chatLogMenu.Text = "チャットログ表示";
+			this.chatLogMenu.Click += new System.EventHandler(this.chatLogMenu_Click);
+			// 
 			// ChatForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 24F);
@@ -242,6 +252,7 @@
 		private System.Windows.Forms.ToolStripMenuItem removeUserMenu;
 		private System.Windows.Forms.ToolStripMenuItem logoutMenu;
 		private System.Windows.Forms.ToolStripMenuItem exitMenu;
+		private System.Windows.Forms.ToolStripMenuItem chatLogMenu;
 	}
 }
 
