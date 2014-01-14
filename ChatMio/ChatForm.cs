@@ -23,6 +23,7 @@ namespace ChatMio
 		private delegate void ShowReconnectDialogCallback ();					//再接続するか尋ねるダイアログを表示するためのデリゲート
 		private delegate void AppendMsgCallback (UserData user, string msg);	//相手又は自分のメッセージを表示する際のデリゲート
 		private delegate void AppendSystemMsgCallback (string msg);				//アプリからのメッセージを表示する際のデリゲート
+		private delegate void AppendClosedMsgCallback (UserData user);			//チャットが閉じられた時のメッセージを表示しログを保存するためのデリゲート
 		#endregion
 
 		#region フォームロード時の処理
@@ -144,12 +145,14 @@ namespace ChatMio
 			else { statusLabel.Text = "接続されていません"; }					//接続済みでない場合
 		}
 
+
+
 		/// <summary>
-		/// 
+		/// chatBoxにメッセージを追加するメソッド
 		/// </summary>
 		/// <param name="user"></param>
 		/// <param name="msg"></param>
-		private void AppendMsg (UserData user, string msg)						//chatBoxにメッセージを追加するメソッド
+		private void AppendMsg (UserData user, string msg)						
 		{
 			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
 				var d = new AppendMsgCallback(AppendMsg);
@@ -194,6 +197,26 @@ namespace ChatMio
 
 				iLength = chatBox.Text.Length;
 				chatBox.Select(iLength, iLength);								//選択を解除
+			}
+		}
+
+		/// <summary>
+		/// チャットが閉じられた時のメッセージをChatBoxに表示しログを保存する
+		/// </summary>
+		/// <param name="user"></param>
+		private void AppendClosedMsg (UserData user)
+		{
+			if (chatBox.InvokeRequired) {
+				var d = new AppendClosedMsgCallback(AppendClosedMsg);
+				Invoke(d, new object[] { user });
+			}
+			else {
+				AppendSystemMsg(String.Format("{0}が接続を切断しました", _she.Name));//chatBoxにシステムメッセージ追加
+				AppendSystemMsg(												//チャットログを書き出し
+						String.Format("\"{0}\"としてチャットログを保存しました",
+						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
+				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
+				_chatTextIndex = chatBox.Text.Length;							//保存済みのテキストの末尾を記録
 			}
 		}
 
@@ -412,19 +435,11 @@ namespace ChatMio
 
 		private void ChatClosed (object obj)									//チャット終了時
 		{
-			AppendSystemMsg(String.Format("{0}が接続を切断しました", _she.Name));//chatBoxにシステムメッセージ追加
-
+			AppendClosedMsg(_she);												//メッセージを表示しログを保存する
 			ChangeTitleBarText(String.Format("ChatMio"));						//タイトルバーのテキストを更新
 			connectMenu.Text = "接続";										  	//メニューのテキストを更新
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
 			_isConnected = false;												//接続済みフラグを下ろす
-
-			AppendSystemMsg(													//チャットログを書き出し
-					String.Format("\"{0}\"としてチャットログを保存しました",
-					ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
-			chatBox.AppendText("\r\n\r\n");										//空行を2行追加
-			_chatTextIndex = chatBox.Text.Length;								//保存済みのテキストの末尾を記録
-
 			SetExitMenus(true);													//終了メニュー有効化
 
 			StartServer();														//サーバーを開始
