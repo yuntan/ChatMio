@@ -232,7 +232,7 @@ namespace ChatMio
 				if (UserInfo.Remove(_me.Name)) {								// 削除成功時
 					MessageBox.Show(this, "ユーザー情報を削除しました", "",
 							MessageBoxButtons.OK, MessageBoxIcon.Information);
-					Close();												// フォームを閉じる
+					Close();													// フォームを閉じる
 				}
 				else {															// 削除失敗時
 					MessageBox.Show(this, "処理が失敗しました", "失敗",
@@ -388,7 +388,7 @@ namespace ChatMio
 		}
 
 		/// <summary>
-		/// ログアウト・終了メニューの有効無効を切り替える
+		/// ユーザー情報削除・ログアウト・終了メニューの有効無効を切り替える
 		/// </summary>
 		/// <param name="enable">有効・無効</param>
 		private void SetExitMenus (bool enable)									
@@ -398,6 +398,7 @@ namespace ChatMio
 						new object[] { enable });
 			}
 			else {
+				removeUserMenu.Enabled = enable;								//removeUserMenu切り替え
 				logoutMenu.Enabled = enable;									//logoutMenu切り替え
 				exitMenu.Enabled = enable;										//exitMenu切り替え
 			}
