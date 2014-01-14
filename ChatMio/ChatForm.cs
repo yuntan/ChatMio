@@ -12,7 +12,7 @@ namespace ChatMio
 		private bool _isConnected;												//接続済みフラグ
 		private UserData _me = new UserData();									//自分のUserData
 		private UserData _she = new UserData();									//相手のUserData
-		private int _chatTextIndex;												//chatTextの末尾
+		private int _chatTextIndex;												//chatTextの内容のうち、保存済みのものの末尾
 
 		#region デリゲートの定義
 		private delegate void ChangeTitleBarTextCallback (string text);			//タイトルバーのテキストを変えるためのデリゲート
@@ -226,6 +226,7 @@ namespace ChatMio
 						String.Format("\"{0}\"としてチャットログを保存しました",
 						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
+				_chatTextIndex = chatBox.Text.Length;							//保存済みのテキストの末尾を記録
 
 				SetExitMenus(true);												//終了メニューを有効化
 
@@ -422,7 +423,7 @@ namespace ChatMio
 					String.Format("\"{0}\"としてチャットログを保存しました",
 					ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 			chatBox.AppendText("\r\n\r\n");										//空行を2行追加
-			_chatTextIndex = chatBox.Text.Length;								//_chatTextIndex更新
+			_chatTextIndex = chatBox.Text.Length;								//保存済みのテキストの末尾を記録
 
 			SetExitMenus(true);													//終了メニュー有効化
 
