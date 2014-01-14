@@ -35,6 +35,7 @@
 			this.menuButton = new System.Windows.Forms.Button();
 			this.menuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.connectMenu = new System.Windows.Forms.ToolStripMenuItem();
+			this.chatLogMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.userListMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.modifyMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeUserMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,7 +43,6 @@
 			this.exitMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.postButton = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.chatLogMenu = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip.SuspendLayout();
 			this.menuStrip.SuspendLayout();
 			this.groupBox1.SuspendLayout();
@@ -83,6 +83,7 @@
 			// 
 			// postBox
 			// 
+			this.postBox.AcceptsReturn = true;
 			this.postBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -91,8 +92,10 @@
 			this.postBox.Location = new System.Drawing.Point(6, 20);
 			this.postBox.Multiline = true;
 			this.postBox.Name = "postBox";
+			this.postBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.postBox.Size = new System.Drawing.Size(304, 67);
 			this.postBox.TabIndex = 0;
+			this.postBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.postBox_KeyUp);
 			// 
 			// menuButton
 			// 
@@ -121,7 +124,7 @@
             this.logoutMenu,
             this.exitMenu});
 			this.menuStrip.Name = "contextMenuStrip1";
-			this.menuStrip.Size = new System.Drawing.Size(172, 180);
+			this.menuStrip.Size = new System.Drawing.Size(172, 158);
 			// 
 			// connectMenu
 			// 
@@ -130,6 +133,14 @@
 			this.connectMenu.Size = new System.Drawing.Size(171, 22);
 			this.connectMenu.Text = "接続";
 			this.connectMenu.Click += new System.EventHandler(this.connectMenu_Click);
+			// 
+			// chatLogMenu
+			// 
+			this.chatLogMenu.ForeColor = System.Drawing.Color.Red;
+			this.chatLogMenu.Name = "chatLogMenu";
+			this.chatLogMenu.Size = new System.Drawing.Size(171, 22);
+			this.chatLogMenu.Text = "チャットログ表示";
+			this.chatLogMenu.Click += new System.EventHandler(this.chatLogMenu_Click);
 			// 
 			// userListMenu
 			// 
@@ -199,14 +210,6 @@
 			this.groupBox1.Size = new System.Drawing.Size(385, 93);
 			this.groupBox1.TabIndex = 0;
 			this.groupBox1.TabStop = false;
-			// 
-			// chatLogMenu
-			// 
-			this.chatLogMenu.ForeColor = System.Drawing.Color.Red;
-			this.chatLogMenu.Name = "chatLogMenu";
-			this.chatLogMenu.Size = new System.Drawing.Size(171, 22);
-			this.chatLogMenu.Text = "チャットログ表示";
-			this.chatLogMenu.Click += new System.EventHandler(this.chatLogMenu_Click);
 			// 
 			// ChatForm
 			// 

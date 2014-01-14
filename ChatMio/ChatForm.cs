@@ -141,15 +141,27 @@ namespace ChatMio
 		private void postButton_Click (object sender, EventArgs e)				//投稿ボタン押下時
 		{
 			if (_isConnected) {													//接続済みの場合
-				if (postBox.Text != "") {
+				if (postBox.Text != "") {										//postBoxにメッセージが入っている時
 					_chat.SendMessage(postBox.Text);							//メッセージコマンドを送信
 
 					AppendMsg(_me, postBox.Text);								//chatBoxに追記
 
 					postBox.Text = "";											//投稿ボックスを空にする
 				}
+				postBox.Focus();
 			}
 			else { statusLabel.Text = "接続されていません"; }					//接続済みでない場合
+		}
+
+		private void postBox_KeyUp (object sender, KeyEventArgs e)				//postBoxになんらかの入力があった時
+		{
+			if (e.KeyCode == Keys.Enter && e.Control) {							//EnterとCtrlが同時に押下されていた場合
+				postBox.Text = postBox.Text.Substring(0, postBox.Text.Length - 2);//末尾に追加された改行を削除
+				postButton.PerformClick();
+				e.Handled = true;
+				return;
+			}
+			e.Handled = false;
 		}
 
 		private void menuButton_Click (object sender, EventArgs e)				//メニューボタンクリック時
@@ -252,11 +264,12 @@ namespace ChatMio
 		/// <param name="msg">メッセージ</param>
 		private void AppendMsg (UserData user, string msg)						
 		{
-			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				var d = new AppendMsgCallback(AppendMsg);
 				Invoke(d, new object[] { user, msg });							//UIスレッドでInvoke
 			}
 			else {
+				chatBox.Focus();												//chatBoxをスクロールさせるためフォーカスを移動しておく
 				int iLength = chatBox.Text.Length;
 				chatBox.AppendText(String.Format("  ::{0}::\r\n", user.Name));	//chatBoxにユーザー名を追加
 				chatBox.Select(iLength, user.Name.Length + 6);					//編集したい文字を選択
@@ -275,6 +288,7 @@ namespace ChatMio
 
 				iLength = chatBox.Text.Length;
 				chatBox.Select(iLength, iLength);								//選択を解除
+				postBox.Focus();												//postBoxにフォーカスを戻す
 			}
 		}
 
@@ -284,11 +298,12 @@ namespace ChatMio
 		/// <param name="msg">システムメッセージ</param>
 		private void AppendSystemMsg (string msg)								
 		{
-			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				var d = new AppendSystemMsgCallback(AppendSystemMsg);
 				Invoke(d, new object[] { msg });								//UIスレッドでInvoke
 			}
 			else {
+				chatBox.Focus();												//chatBoxをスクロールさせるためフォーカスを移動しておく
 				int iLength = chatBox.Text.Length;
 				chatBox.AppendText(String.Format("  /* {0} */\r\n", msg));		//chatBoxにユーザー名を追加
 				chatBox.Select(iLength, msg.Length + 8);						//編集したい文字を選択
@@ -299,6 +314,7 @@ namespace ChatMio
 
 				iLength = chatBox.Text.Length;
 				chatBox.Select(iLength, iLength);								//選択を解除
+				postBox.Focus();												//postBoxにフォーカスを戻す
 			}
 		}
 
@@ -308,17 +324,19 @@ namespace ChatMio
 		/// <param name="user">チャットを閉じたユーザー</param>
 		private void AppendClosedMsg (UserData user)
 		{
-			if (chatBox.InvokeRequired) {
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				var d = new AppendClosedMsgCallback(AppendClosedMsg);
-				Invoke(d, new object[] { user });
+				Invoke(d, new object[] { user });								//UIスレッドでInvoke
 			}
 			else {
+				chatBox.Focus();												//chatBoxをスクロールさせるためフォーカスを移動しておく
 				AppendSystemMsg(String.Format("{0}が接続を切断しました", _she.Name));//chatBoxにシステムメッセージ追加
 				AppendSystemMsg(												//チャットログを書き出し
 						String.Format("\"{0}\"としてチャットログを保存しました",
 						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
 				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
 				_chatTextIndex = chatBox.Text.Length;							//保存済みのテキストの末尾を記録
+				postBox.Focus();												//postBoxにフォーカスを戻す
 			}
 		}	  
 										
@@ -328,7 +346,7 @@ namespace ChatMio
 		/// <param name="str">設定するテキスト</param>
 		private void ChangeTitleBarText (string str)							
 		{
-			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				Invoke(new ChangeTitleBarTextCallback(ChangeTitleBarText),		//UIスレッドでInvoke
 						new object[] { str });
 			}
@@ -343,7 +361,7 @@ namespace ChatMio
 		/// <param name="enable">有効・無効</param>
 		private void SetPostBtn (bool enable)									
 		{
-			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
+			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				Invoke(new SetPostBtnCallback(SetPostBtn),						//UIスレッドでInvoke
 						new object[] { enable });
 			}
