@@ -59,6 +59,9 @@ namespace ChatMio
 		#endregion
 
 		#region サーバー・クライアント開始処理
+		/// <summary>
+		/// サーバーを起動する
+		/// </summary>
 		private void StartServer ()
 		{
 			_chat = new ChatServer();											//ChatServerのインスタンス化
@@ -78,6 +81,10 @@ namespace ChatMio
 			statusLabel.Text = String.Format("{0}として接続を待機しています…", ((ChatServer) _chat).MyAddress);
 		}
 
+		/// <summary>
+		/// クライアントを起動する
+		/// </summary>
+		/// <param name="ipAddr"></param>
 		private void StartClient (string ipAddr)
 		{
 			_chat = new ChatClient(ipAddr);										//ChatClientのインスタンス化
@@ -143,81 +150,6 @@ namespace ChatMio
 				}
 			}
 			else { statusLabel.Text = "接続されていません"; }					//接続済みでない場合
-		}
-
-
-
-		/// <summary>
-		/// chatBoxにメッセージを追加するメソッド
-		/// </summary>
-		/// <param name="user"></param>
-		/// <param name="msg"></param>
-		private void AppendMsg (UserData user, string msg)						
-		{
-			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
-				var d = new AppendMsgCallback(AppendMsg);
-				Invoke(d, new object[] { user, msg });							//UIスレッドでInvoke
-			}
-			else {
-				int iLength = chatBox.Text.Length;
-				chatBox.AppendText(String.Format("  ::{0}::\r\n", user.Name));	//chatBoxにユーザー名を追加
-				chatBox.Select(iLength, user.Name.Length + 6);					//編集したい文字を選択
-				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を赤に変更
-				chatBox.SelectionFont = 										//文字サイズを11に変更
-						new Font(chatBox.SelectionFont.FontFamily,
-						11, FontStyle.Bold);
-
-				iLength = chatBox.Text.Length;
-				chatBox.AppendText(String.Format("{0}\r\n\r\n", msg));			//chatBoxにメッセージを追加
-				chatBox.Select(iLength, msg.Length);							//編集したい文字を選択
-				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を変更
-				chatBox.SelectionFont = 										//文字サイズを変更
-						new Font(chatBox.SelectionFont.FontFamily,
-						user.FontSize, FontStyle.Bold);
-
-				iLength = chatBox.Text.Length;
-				chatBox.Select(iLength, iLength);								//選択を解除
-			}
-		}
-
-		private void AppendSystemMsg (string msg)								//chatBoxにシステムメッセージを追加するメソッド
-		{
-			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
-				var d = new AppendSystemMsgCallback(AppendSystemMsg);
-				Invoke(d, new object[] { msg });								//UIスレッドでInvoke
-			}
-			else {
-				int iLength = chatBox.Text.Length;
-				chatBox.AppendText(String.Format("  /* {0} */\r\n", msg));		//chatBoxにユーザー名を追加
-				chatBox.Select(iLength, msg.Length + 8);						//編集したい文字を選択
-				chatBox.SelectionColor = Color.FromKnownColor(KnownColor.Red);	//文字色を赤に変更
-				chatBox.SelectionFont = 										//文字サイズを12に変更
-						new Font(chatBox.SelectionFont.FontFamily,
-						12, FontStyle.Italic);									//スタイルをイタリック体に
-
-				iLength = chatBox.Text.Length;
-				chatBox.Select(iLength, iLength);								//選択を解除
-			}
-		}
-
-		/// <summary>
-		/// チャットが閉じられた時のメッセージをChatBoxに表示しログを保存する
-		/// </summary>
-		/// <param name="user"></param>
-		private void AppendClosedMsg (UserData user)
-		{
-			if (chatBox.InvokeRequired) {
-				var d = new AppendClosedMsgCallback(AppendClosedMsg);
-				Invoke(d, new object[] { user });
-			}
-			else {
-				AppendSystemMsg(String.Format("{0}が接続を切断しました", _she.Name));//chatBoxにシステムメッセージ追加
-				AppendSystemMsg(												//チャットログを書き出し
-						String.Format("\"{0}\"としてチャットログを保存しました",
-						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
-				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
-				_chatTextIndex = chatBox.Text.Length;							//保存済みのテキストの末尾を記録
-			}
 		}
 
 		private void menuButton_Click (object sender, EventArgs e)				//メニューボタンクリック時
@@ -310,8 +242,91 @@ namespace ChatMio
 			Program.Exit = true;												// アプリケーション終了フラグを立てる
 			Close();
 		}
+		#endregion
 
-		private void ChangeTitleBarText (string str)							//タイトルバーのテキストを変える
+		#region UI操作用メソッド
+		/// <summary>
+		/// chatBoxに送信・受信したメッセージを追加するメソッド
+		/// </summary>
+		/// <param name="user">メッセージを送信したユーザー名</param>
+		/// <param name="msg">メッセージ</param>
+		private void AppendMsg (UserData user, string msg)						
+		{
+			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
+				var d = new AppendMsgCallback(AppendMsg);
+				Invoke(d, new object[] { user, msg });							//UIスレッドでInvoke
+			}
+			else {
+				int iLength = chatBox.Text.Length;
+				chatBox.AppendText(String.Format("  ::{0}::\r\n", user.Name));	//chatBoxにユーザー名を追加
+				chatBox.Select(iLength, user.Name.Length + 6);					//編集したい文字を選択
+				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を赤に変更
+				chatBox.SelectionFont = 										//文字サイズを11に変更
+						new Font(chatBox.SelectionFont.FontFamily,
+						11, FontStyle.Bold);
+
+				iLength = chatBox.Text.Length;
+				chatBox.AppendText(String.Format("{0}\r\n\r\n", msg));			//chatBoxにメッセージを追加
+				chatBox.Select(iLength, msg.Length);							//編集したい文字を選択
+				chatBox.SelectionColor = Color.FromKnownColor(user.TextColor);	//文字色を変更
+				chatBox.SelectionFont = 										//文字サイズを変更
+						new Font(chatBox.SelectionFont.FontFamily,
+						user.FontSize, FontStyle.Bold);
+
+				iLength = chatBox.Text.Length;
+				chatBox.Select(iLength, iLength);								//選択を解除
+			}
+		}
+
+		/// <summary>
+		/// chatBoxにシステムメッセージを追加するメソッド
+		/// </summary>
+		/// <param name="msg">システムメッセージ</param>
+		private void AppendSystemMsg (string msg)								
+		{
+			if (chatBox.InvokeRequired) {										//非UIスレッドからの呼び出し時
+				var d = new AppendSystemMsgCallback(AppendSystemMsg);
+				Invoke(d, new object[] { msg });								//UIスレッドでInvoke
+			}
+			else {
+				int iLength = chatBox.Text.Length;
+				chatBox.AppendText(String.Format("  /* {0} */\r\n", msg));		//chatBoxにユーザー名を追加
+				chatBox.Select(iLength, msg.Length + 8);						//編集したい文字を選択
+				chatBox.SelectionColor = Color.FromKnownColor(KnownColor.Red);	//文字色を赤に変更
+				chatBox.SelectionFont = 										//文字サイズを12に変更
+						new Font(chatBox.SelectionFont.FontFamily,
+						12, FontStyle.Italic);									//スタイルをイタリック体に
+
+				iLength = chatBox.Text.Length;
+				chatBox.Select(iLength, iLength);								//選択を解除
+			}
+		}
+
+		/// <summary>
+		/// チャットが閉じられた時のメッセージをChatBoxに表示しログを保存する
+		/// </summary>
+		/// <param name="user">チャットを閉じたユーザー</param>
+		private void AppendClosedMsg (UserData user)
+		{
+			if (chatBox.InvokeRequired) {
+				var d = new AppendClosedMsgCallback(AppendClosedMsg);
+				Invoke(d, new object[] { user });
+			}
+			else {
+				AppendSystemMsg(String.Format("{0}が接続を切断しました", _she.Name));//chatBoxにシステムメッセージ追加
+				AppendSystemMsg(												//チャットログを書き出し
+						String.Format("\"{0}\"としてチャットログを保存しました",
+						ChatLog.Save(_she.Name, chatBox.Text.Substring(_chatTextIndex))));
+				chatBox.AppendText("\r\n\r\n");									//空行を2行追加
+				_chatTextIndex = chatBox.Text.Length;							//保存済みのテキストの末尾を記録
+			}
+		}	  
+										
+		/// <summary>
+		/// タイトルバーのテキストを変える
+		/// </summary>
+		/// <param name="str">設定するテキスト</param>
+		private void ChangeTitleBarText (string str)							
 		{
 			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
 				Invoke(new ChangeTitleBarTextCallback(ChangeTitleBarText),		//UIスレッドでInvoke
@@ -322,7 +337,11 @@ namespace ChatMio
 			}
 		}
 
-		private void SetPostBtn (bool enable)									//postButtonの有効無効を切り替える
+		/// <summary>
+		/// postButtonの有効無効を切り替える
+		/// </summary>
+		/// <param name="enable">有効・無効</param>
+		private void SetPostBtn (bool enable)									
 		{
 			if (postButton.InvokeRequired) {									//非UIスレッドからの呼び出し時
 				Invoke(new SetPostBtnCallback(SetPostBtn),						//UIスレッドでInvoke
@@ -334,7 +353,11 @@ namespace ChatMio
 			}
 		}
 
-		private void SetConnectMenu (bool enable)								//接続メニューの有効無効を切り替える
+		/// <summary>
+		/// 接続メニューの有効無効を切り替える
+		/// </summary>
+		/// <param name="enable">有効・無効</param>
+		private void SetConnectMenu (bool enable)								
 		{
 			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				Invoke(new SetConnectMenuCallback(SetConnectMenu),				//UIスレッドでInvoke
@@ -345,7 +368,11 @@ namespace ChatMio
 			}
 		}
 
-		private void SetExitMenus (bool enable)									//ログアウト・終了メニューの有効無効を切り替える
+		/// <summary>
+		/// ログアウト・終了メニューの有効無効を切り替える
+		/// </summary>
+		/// <param name="enable">有効・無効</param>
+		private void SetExitMenus (bool enable)									
 		{
 			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				Invoke(new SetExitMenusCallback(SetExitMenus),					//UIスレッドでInvoke
@@ -357,7 +384,11 @@ namespace ChatMio
 			}
 		}
 
-		private void SetCursor (bool waiting)									//カーソルの見た目を切り替える
+		/// <summary>
+		/// カーソルの見た目を切り替える
+		/// </summary>
+		/// <param name="waiting">待ち状態かそうでないか</param>
+		private void SetCursor (bool waiting)									
 		{
 			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
 				Invoke(new SetCursorCallback(SetCursor),						//UIスレッドでInvoke
@@ -375,6 +406,9 @@ namespace ChatMio
 			}
 		}
 
+		/// <summary>
+		/// 接続失敗時再接続するかどうか尋ねるダイアログを出す
+		/// </summary>
 		private void ShowReconnectDialog ()
 		{
 			if (InvokeRequired) {												//非UIスレッドからの呼び出し時
@@ -392,7 +426,12 @@ namespace ChatMio
 		#endregion
 
 		#region Server,Clientのイベントハンドラ
-		private void Connected (object obj, ConnectedEventArgs e)				//接続成功時
+		/// <summary>
+		/// 接続成功時
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <param name="e">IPアドレスを格納したEventArgs</param>
+		private void Connected (object obj, ConnectedEventArgs e)				
 		{
 			AppendSystemMsg(
 					String.Format(
@@ -410,7 +449,11 @@ namespace ChatMio
 			SetConnectMenu(true);												//接続メニューを有効化する
 		}
 
-		private void ConnectionFailed (object obj)								//接続失敗時
+		/// <summary>
+		/// 接続失敗時
+		/// </summary>
+		/// <param name="obj"></param>
+		private void ConnectionFailed (object obj)								
 		{
 			connectMenu.Text = "接続";											//メニューのテキストを更新
 			SetPostBtn(false);													//投稿ボタンを使えないようにする
@@ -423,17 +466,31 @@ namespace ChatMio
 			ShowReconnectDialog();												//再試行するかどうか尋ねる
 		}
 
-		private void MsgReceived (object server, MsgReceivedEventArgs e)		//メッセージ受信時
+		/// <summary>
+		/// メッセージ受信時
+		/// </summary>
+		/// <param name="server"></param>
+		/// <param name="e">受信したメッセージを格納したEventArgs</param>
+		private void MsgReceived (object server, MsgReceivedEventArgs e)		
 		{
 			AppendMsg(_she, e.Message);											//chatBoxにメッセージ追加
 		}
 
-		private void UserDataReceived (object obj, UserDataReceivedEventArgs e)	//ユーザー情報受信時
+		/// <summary>
+		/// ユーザー情報受信時
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <param name="e">受信したユーザー情報を格納したEventArgs</param>
+		private void UserDataReceived (object obj, UserDataReceivedEventArgs e)	
 		{
 			_she = e.Data;														//ユーザー情報を変数に保存											   
 		}
 
-		private void ChatClosed (object obj)									//チャット終了時
+		/// <summary>
+		/// チャット終了コマンド受信時
+		/// </summary>
+		/// <param name="obj"></param>
+		private void ChatClosed (object obj)									
 		{
 			AppendClosedMsg(_she);												//メッセージを表示しログを保存する
 			ChangeTitleBarText(String.Format("ChatMio"));						//タイトルバーのテキストを更新
@@ -445,12 +502,21 @@ namespace ChatMio
 			StartServer();														//サーバーを開始
 		}
 
-		private void ResponseReceived (object obj)								//応答受信時
+		/// <summary>
+		/// 応答コマンド受信時(未実装)
+		/// </summary>
+		/// <param name="obj"></param>
+		private void ResponseReceived (object obj)							
 		{
 
 		}
 
-		private void PingReceived (object obj, PingEventArgs e)					//Ping受信時
+		/// <summary>
+		/// Pingコマンド受信時(未実装)
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <param name="e"></param>
+		private void PingReceived (object obj, PingEventArgs e)				
 		{
 
 		}

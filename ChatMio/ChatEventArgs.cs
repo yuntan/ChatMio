@@ -11,6 +11,9 @@ namespace ChatMio
 		DisConnected
 	}
 
+	/// <summary>
+	/// 接続相手のIPアドレスを格納するEventArgs
+	/// </summary>
 	public class ConnectedEventArgs : EventArgs			
 	{
 		public readonly string IpAddr;					//相手のIPアドレス
@@ -21,6 +24,9 @@ namespace ChatMio
 		}
 	}
 
+	/// <summary>
+	/// 受信したメッセージを格納するEventArgs
+	/// </summary>
 	public class MsgReceivedEventArgs : EventArgs		
 	{
 		public readonly string Message;					//受信したメッセージ
@@ -31,6 +37,9 @@ namespace ChatMio
 		}
 	}
 
+	/// <summary>
+	/// 相手のUserDataを格納するEventArgs
+	/// </summary>
 	public class UserDataReceivedEventArgs : EventArgs
 	{
 		public readonly UserData Data;					//相手のUserData
@@ -45,6 +54,9 @@ namespace ChatMio
 		}
 	}
 
+	/// <summary>
+	/// 接続・未接続を示すEnumを格納するEventArgs
+	/// </summary>
 	public class PingEventArgs : EventArgs				
 	{
 		public readonly ChatStatus status;				//接続・未接続

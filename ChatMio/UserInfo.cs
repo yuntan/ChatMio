@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml;
 using System.Collections.Generic;
 using System.Drawing;
@@ -44,7 +45,10 @@ namespace ChatMio
 		}
 	}
 
-	public enum PrefEnum													// 都道府県のEnum
+	/// <summary>
+	/// 都道府県のEnum
+	/// </summary>
+	public enum PrefEnum													 
 	{
 		Hokkaido, Aomori, Iwate, Miyagi, Akita, Yamagata,
 		Fukushima, Ibaragi, Tochigi, Gunnma, Saitama, Chiba,
@@ -56,9 +60,16 @@ namespace ChatMio
 		Kumamoto, Oita, Miyazaki, Kagoshima, Okinawa
 	}
 
-	public class UserInfo													// ユーザーデータ処理用クラス
+	/// <summary>
+	/// ユーザーデータ処理用クラス
+	/// </summary>
+	public class UserInfo													
 	{
-		private static bool CreateSqlDB ()									//mdf,ldfファイルを生成する
+		/// <summary>
+		/// mdf,ldfファイルを生成する
+		/// </summary>
+		/// <returns>成功失敗</returns>
+		private static bool CreateSqlDB ()									
 		{
 			SqlConnection sqlConn1 = new SqlConnection(						//localhostのSQLServerへの接続
 					"Server = localhost; Integrated security = SSPI;　");
@@ -116,7 +127,7 @@ namespace ChatMio
 		/// ユーザーデータを書き込む
 		/// </summary>
 		/// <param name="data">書き込むデータ</param>
-		/// <returns></returns>
+		/// <returns>成功失敗</returns>
 		public static bool Write (UserData data)
 		{
 			var xmlDoc = new XmlDocument();
@@ -186,42 +197,50 @@ namespace ChatMio
 			 */
 		}
 
-		public static int Count ()
+		/// <summary>
+		/// 保存されているUserDataの数を取得
+		/// </summary>
+		public static int Count
 		{
-			try {
-				var xmlDoc = new XmlDocument();
-				xmlDoc.Load("UserInfo.xml");
+			get
+			{
+				try {
+					var xmlDoc = new XmlDocument();
+					xmlDoc.Load("UserInfo.xml");
 
-				int count = 0;
-				var users = xmlDoc.SelectNodes("//User");
-				foreach (XmlElement user in users) {
-					count++;
+					var users = xmlDoc.SelectNodes("//User");
+
+					return users != null ? users.Cast<XmlElement>().Count() : 0;
+				}
+				catch (SystemException) {
+					return 0;
+				}
+				/*
+				if (!File.Exists(".\\ChatMioUserDB.mdf")) {						//mdfが存在しない時
+					return 0;													//項目は0個
 				}
 
-				return count;
-			}
-			catch (SystemException) {
-				return -1;
-			}
-			/*
-			if (!File.Exists(".\\ChatMioUserDB.mdf")) {						//mdfが存在しない時
-				return 0;													//項目は0個
-			}
+				try {
+					var db = new DataContext(									//データベースへ接続
+							"Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
 
-			try {
-				var db = new DataContext(									//データベースへ接続
-						"Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
-
-				var users = db.GetTable<UserData>();						//UserDataテーブルを取得
-				return users.Count();										//項目数を返す
+					var users = db.GetTable<UserData>();						//UserDataテーブルを取得
+					return users.Count();										//項目数を返す
+				}
+				catch (SystemException e) {
+					Debug.WriteLine("Count Error! {0}", e);
+					return -1;
+				}
+				 */
 			}
-			catch (SystemException e) {
-				Debug.WriteLine("Count Error! {0}", e);
-				return -1;
-			}
-			 */
 		}
 
+		/// <summary>
+		/// ユーザー情報を読み込む
+		/// </summary>
+		/// <param name="name">読み込みたい情報のユーザー名</param>
+		/// <param name="ret">読み込んだユーザー情報</param>
+		/// <returns>成功失敗</returns>
 		public static bool Read (string name, out UserData ret)
 		{
 			ret = new UserData();
@@ -252,15 +271,20 @@ namespace ChatMio
 			}
 		}
 
+		/// <summary>
+		/// ユーザー情報をすべて読み込む
+		/// </summary>
+		/// <param name="datas">読み込んだユーザー情報の配列</param>
+		/// <returns>成功失敗</returns>
 		public static bool ReadAll (out UserData[] datas)
 		{
 			try {
 				var xmlDoc = new XmlDocument();
 				xmlDoc.Load("UserInfo.xml");
 
-				int count = Count();
-				if (count > 0) {
-					datas = new UserData[count];
+				int c = Count;
+				if (c > 0) {
+					datas = new UserData[c];
 				}
 				else {
 					datas = new UserData[0];
@@ -288,6 +312,11 @@ namespace ChatMio
 			}
 		}
 
+		/// <summary>
+		/// ユーザー情報を削除する
+		/// </summary>
+		/// <param name="name">削除するユーザーの名前</param>
+		/// <returns>成功失敗</returns>
 		public static bool Remove (string name)
 		{
 			try {

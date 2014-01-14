@@ -26,6 +26,9 @@ namespace ChatMio
 			return fileName;													//ファイル名を返す
 		}
 
+		/// <summary>
+		/// 保存済みのチャットログの一覧を取得
+		/// </summary>
 		public static LogData[] LogList
 		{
 			get
@@ -40,6 +43,11 @@ namespace ChatMio
 			}
 		}
 
+		/// <summary>
+		/// チャットログを印刷する
+		/// </summary>
+		/// <param name="fileName">印刷したいチャットログのファイル名</param>
+		/// <param name="showPreview">プレビューを表示するか否か</param>
 		public static void Print (string fileName, bool showPreview)
 		{
 			LogData log = ParseLogFileName(fileName);							//ファイル名をパース
@@ -97,6 +105,11 @@ namespace ChatMio
 			else { pd.Print(); }												//印刷する
 		}
 
+		/// <summary>
+		/// チャットログのファイル名からチャットが行われた日付、相手を取り出す
+		/// </summary>
+		/// <param name="fileName">対象のファイル名</param>
+		/// <returns>取り出した情報</returns>
 		private static LogData ParseLogFileName (string fileName)
 		{
 			var log = new LogData();
@@ -122,6 +135,9 @@ namespace ChatMio
 		}
 	}
 
+	/// <summary>
+	/// チャットログの行われた日付、終了時刻、相手、ファイル名を格納するクラス
+	/// </summary>
 	public class LogData
 	{
 		[DisplayName("日付")]

@@ -5,6 +5,9 @@ using System.Net.Sockets;
 
 namespace ChatMio
 {
+	/// <summary>
+	/// クライアントとしての動作を行うクラス
+	/// </summary>
 	class ChatClient : ChatBase
 	{
 		private readonly IPAddress _ipAddr;										//相手マシンのIPアドレス

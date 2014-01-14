@@ -4,6 +4,9 @@ using System.Net.Sockets;
 
 namespace ChatMio
 {
+	/// <summary>
+	/// ChatClient, ChatServerの親クラス(継承専用クラス)
+	/// </summary>
 	abstract class ChatBase
 	{
 		//接続完了時のイベントとデリゲート
@@ -204,6 +207,11 @@ namespace ChatMio
 			}
 		}
 
+		/// <summary>
+		/// 受信したユーザー情報をパースする
+		/// </summary>
+		/// <param name="bytCmd">受信したユーザー情報のバイト列</param>
+		/// <returns>パースしたユーザー情報</returns>
 		protected UserData ParseUserData (byte[] bytCmd)
 		{
 			int infoNum = BitConverter.ToInt16(bytCmd, 10);						//含まれるユーザー情報の数
@@ -349,7 +357,7 @@ namespace ChatMio
 		/// </summary>
 		/// <param name="statusID">応答の種類 0:成功 1:Ready 2:NotReady 255:失敗</param>
 		/// <param name="packetID">応答の対象コマンドID</param>
-		/// <returns></returns>
+		/// <returns>成功失敗</returns>
 		public bool SendResponse (int statusID, int packetID)
 		{
 			MyDebug.WriteLine(this, "応答の送信");

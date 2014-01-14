@@ -7,6 +7,9 @@ using System.IO;
 
 namespace ChatMio
 {
+	/// <summary>
+	/// サーバーとしての動作を行うクラス
+	/// </summary>
 	class ChatServer : ChatBase
 	{
 		private int _myIpIndex;													//AddressIndexの内部変数

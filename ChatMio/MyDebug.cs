@@ -21,6 +21,10 @@ namespace ChatMio
 			WriteLog(message);											//ログファイルに追記
 		}
 
+		/// <summary>
+		/// ログファイルにログを吐く
+		/// </summary>
+		/// <param name="message">吐きたいログ</param>
 		private static void WriteLog (string message)
 		{
 			string fileName = String.Format("{0}.log", DateTime.Now.ToString("yyMMdd"));

@@ -10,12 +10,12 @@ namespace ChatMio
 			InitializeComponent();
 		}
 
-		private void LogListForm_Load (object sender, EventArgs e)
+		private void LogListForm_Load (object sender, EventArgs e)				//フォームロード時
 		{
 			dataGridView.DataSource = ChatLog.LogList;							//dataGridViewにデータをセット
 		}
 
-		private void printButton_Click (object sender, EventArgs e)
+		private void printButton_Click (object sender, EventArgs e)				//「印刷」ボタンクリック時
 		{
 			DataGridViewSelectedCellCollection cells = dataGridView.SelectedCells;
 			if (cells.Count == 1) {												//選択中のセルが1つあった場合
