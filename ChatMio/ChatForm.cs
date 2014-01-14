@@ -153,15 +153,16 @@ namespace ChatMio
 			else { statusLabel.Text = "接続されていません"; }					//接続済みでない場合
 		}
 
-		private void postBox_KeyUp (object sender, KeyEventArgs e)				//postBoxになんらかの入力があった時
+		private void postBox_KeyDown (object sender, KeyEventArgs e)			//postBoxになんらかの入力があった時
 		{
 			if (e.KeyCode == Keys.Enter && e.Control) {							//EnterとCtrlが同時に押下されていた場合
-				postBox.Text = postBox.Text.Substring(0, postBox.Text.Length - 2);//末尾に追加された改行を削除
-				postButton.PerformClick();
-				e.Handled = true;
-				return;
+				postButton.PerformClick();										//投稿
+				e.SuppressKeyPress = true;										//改行の入力を抑制
 			}
-			e.Handled = false;
+			else if (e.KeyCode == Keys.A && e.Control) {						//CtrlとAが同時に押下されていた場合
+				postBox.SelectAll();											//全選択
+				e.SuppressKeyPress = true;										//aの入力を抑制
+			}
 		}
 
 		private void menuButton_Click (object sender, EventArgs e)				//メニューボタンクリック時

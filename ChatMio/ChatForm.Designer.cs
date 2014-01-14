@@ -95,7 +95,7 @@
 			this.postBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.postBox.Size = new System.Drawing.Size(304, 67);
 			this.postBox.TabIndex = 0;
-			this.postBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.postBox_KeyUp);
+			this.postBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.postBox_KeyDown);
 			// 
 			// menuButton
 			// 
