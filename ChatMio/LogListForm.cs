@@ -20,7 +20,7 @@ namespace ChatMio
 			DataGridViewSelectedCellCollection cells = dataGridView.SelectedCells;
 			if (cells.Count == 1) {												//選択中のセルが1つあった場合
 				string fileName =												//選択中のログのファイル名を取得
-						dataGridView.Rows[cells[0].RowIndex].Cells[3].Value.ToString();
+						(dataGridView.DataSource as LogData[])[cells[0].RowIndex].FileName;
 				ChatLog.Print(fileName, true);									//ログファイルのプレビューを表示
 			}
 			else {																//セルが選択されていない又は2つ以上選択されている時

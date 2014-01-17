@@ -2,7 +2,9 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ChatMio
@@ -34,12 +36,7 @@ namespace ChatMio
 			get
 			{
 				string[] logNames = Directory.GetFiles(@".\", "chatmio_*.txt");	//ログファイルを検索
-				var ret = new LogData[logNames.Length];							//返り値
-				for (int i = 0; i < logNames.Length; i++) {
-					var log = ParseLogFileName(logNames[i].Substring(2));		//ファイル名をパース
-					ret[i] = log;												//配列に追加
-				}
-				return ret;														//配列を返す
+				return logNames.Select(x => ParseLogFileName(x.Substring(2))).ToArray();//ファイル名をパースし配列にし返す
 			}
 		}
 
@@ -51,50 +48,79 @@ namespace ChatMio
 		public static void Print (string fileName, bool showPreview)
 		{
 			LogData log = ParseLogFileName(fileName);							//ファイル名をパース
+			string textToPrint;													//印刷するテキスト
+			using (var r = new StreamReader(fileName)) {
+				textToPrint = r.ReadToEnd();									//ファイルからテキストをすべて読み込む
+			}
+			int page = 1;
 
 			var pd = new PrintDocument();				   						//PrindDocumentのインスタンス
+
+			var pSize = (from PaperSize size in pd.PrinterSettings.PaperSizes	//A4の用紙サイズを取得
+						where size.Kind == PaperKind.A4
+						select size).FirstOrDefault();
+
+			if (pSize == default(PaperSize)) {									//A4未対応のプリンターだったら
+				MessageBox.Show("プリンターがA4に対応していません", "用紙サイズのエラー",//エラーを吐く
+						MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;															//終了
+			}
+
 			pd.PrintPage += delegate(object sender, PrintPageEventArgs e) {		//実際に印刷を行うデリゲートを追加
 				#region 印刷を行うデリゲート
 				var pen = new Pen(Color.Black, 1);								//デフォルトで幅1のペンを作成
+				Font font; SizeF size; int x;
 				const int paperWidth = 210, paperHeight = 297;					//用紙の幅、高さ
-				e.PageSettings.PaperSize = new PaperSize("A4", 210, 297);		//用紙サイズはA4
+				//e.PageSettings.PaperSize = new PaperSize("A4", 210, 297);		//用紙サイズはA4
+				e.PageSettings.PaperSize = pSize;
+				e.PageSettings.Landscape = false;								//縦向き
 				e.Graphics.PageUnit = GraphicsUnit.Millimeter;					//ミリ単位で扱う
 
-				//タイトルをセンタリングして描画
-				const string title = "ChatMio チャットログ";
-				var font = new Font("ＭＳ ゴシック", 21);						//フォントサイズを21に
-				SizeF size = e.Graphics.MeasureString(title, font, paperWidth);	//描画時の文字列の長さを計測
-				int x = Convert.ToInt32(paperWidth / 2 - size.Width / 2);		//X座標を求める
-				e.Graphics.DrawString(title, font, Brushes.Black, x, 10);		//描画する
+				if (page == 1) {
+					//タイトルをセンタリングして描画
+					const string title = "ChatMio チャットログ";
+					font = new Font("ＭＳ ゴシック", 21.0F);					//フォントサイズを21に
+					size = e.Graphics.MeasureString(title, font, paperWidth);	//描画時の文字列の長さを計測
+					x = Convert.ToInt32(paperWidth / 2 - size.Width / 2);		//X座標を求める
+					e.Graphics.DrawString(title, font, Brushes.Black, x, 10);	//描画する
 
-				//サブタイトルをセンタリングして描画
-				string subTitle = String.Format("{0}  {1}との会話", log.Date, log.HerName);
-				font = new Font("ＭＳ ゴシック", 15);							//フォントサイズを15に
-				size = e.Graphics.MeasureString(subTitle, font, paperWidth);	//描画時の文字列の長さを計測
-				x = Convert.ToInt32(paperWidth / 2 - size.Width / 2);			//X座標を求める
-				e.Graphics.DrawString(subTitle, font, Brushes.Black, x, 25);	//描画する
+					//サブタイトルをセンタリングして描画
+					string subTitle = String.Format("{0}  {1}との会話", log.Date, log.HerName);
+					font = new Font("ＭＳ ゴシック", 15.0F);					//フォントサイズを15に
+					size = e.Graphics.MeasureString(subTitle, font, paperWidth);//描画時の文字列の長さを計測
+					x = Convert.ToInt32(paperWidth / 2 - size.Width / 2);		//X座標を求める
+					e.Graphics.DrawString(subTitle, font, Brushes.Black, x, 25);//描画する
+				}
 
 				//チャットログを囲むボックスを描画
-				const int rectX = 10, rectY = 40,								//(x,y)=(10,40)
-						rectW = paperWidth - rectX * 2, rectH = paperHeight - rectY - 10;
-				e.Graphics.DrawRectangle(pen, rectX, rectY, rectW, rectH);		//描画する
+				var rect = new Rectangle(10, (page == 1 ? 40 : 10),				//描画するボックスの位置・大きさ
+						paperWidth - 10 - 10, paperHeight - (page == 1 ? 40 : 10) - 20);
+				MyDebug.WriteLine(null, "rect = {0}", rect);
+				e.Graphics.DrawRectangle(pen, rect);							//描画する
 
 				//チャットログを描画
-				font = new Font("ＭＳ ゴシック", 12);							//フォントサイズを12に
-				const int lineHeight = 6;										//一行の高さ
-				int linesPerPage = (rectH - 10) / lineHeight,					//1ページに入れることができる行数
-					currentLine = 0;											//～行目
-				using (var r = new StreamReader(fileName)) {
-					while (linesPerPage > 0 && !r.EndOfStream) {				//行数オーバー又はファイル末尾まで来たら終了
-						string s = r.ReadLine();
-						e.Graphics.DrawString(s, font, Brushes.Black,			//描画する
-								rectX + 5, rectY + currentLine * lineHeight + 5);
-						linesPerPage--; currentLine++;
-					}
-					if (!r.EndOfStream) {
-						e.HasMorePages = true;
-					} //TODO 2ページ目以降
-				}
+				font = new Font("ＭＳ ゴシック", 12.0F);						//フォントサイズを12に
+				var drawRect = new RectangleF(rect.X + 5, rect.Y + 5,			//チャットログを描画する領域
+						rect.Width - 10, rect.Height - 10);
+				int charsInPage, linesInPage;									//描画された文字数、描画された行数
+				e.Graphics.MeasureString(textToPrint, font,						//文字数、行数を測定
+						new SizeF(drawRect.Width, drawRect.Height - 5),			//描画領域よりも少し狭く設定
+						new StringFormat(), out charsInPage, out linesInPage);
+				/* .Netのバグ
+				 * 内容がWrapされた時正しく文字数、行数を測定できない
+				 */
+				MyDebug.WriteLine(null, "charsInPage = {0}, linesInPage = {1}", charsInPage, linesInPage);
+				e.Graphics.DrawString(textToPrint.Substring(0, charsInPage),	//描画する
+						font, Brushes.Black, drawRect);
+				textToPrint = textToPrint.Substring(charsInPage);
+				e.HasMorePages = (textToPrint.Length > 0);						//描画するテキストがまだ残っていたら次ページも印刷
+
+				//ページ数を描画
+				size = e.Graphics.MeasureString(								//描画時の文字列の長さを計測
+						page.ToString(CultureInfo.InvariantCulture), font, paperWidth);
+				x = Convert.ToInt32(paperWidth / 2 - size.Width / 2);			//X座標を求める
+				e.Graphics.DrawString(											//描画する   
+						page++.ToString(CultureInfo.InvariantCulture), font, Brushes.Black, x, 280);
 				#endregion
 			};
 
@@ -127,6 +153,7 @@ namespace ChatMio
 				string herName = fileName.Substring(22, fileName.Length - 26);	//ファイル名からチャット相手の名前を取り出す
 				log.HerName = herName;											//リストに名前を追加
 				log.FileName = fileName;										//リストにファイル名を追加
+				log.FileSize = new FileInfo(fileName).Length;					//リストにファイルサイズを追加
 			}
 			catch (SystemException e) {
 				MyDebug.WriteLine(null, "ChatLog.ParseLogFileName ファイル名のフォーマットが不正\n{0}", e);
@@ -151,5 +178,8 @@ namespace ChatMio
 
 		[DisplayName("ファイル名")]
 		public string FileName { get; set; }
+
+		[DisplayName("ファイルサイズ(B)")]
+		public long FileSize { get; set; }
 	}
 }
