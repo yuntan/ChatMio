@@ -32,6 +32,7 @@
 			this.dataGridView = new System.Windows.Forms.DataGridView();
 			this.modifyButton = new System.Windows.Forms.Button();
 			this.removeButton = new System.Windows.Forms.Button();
+			this.printButton = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -65,7 +66,7 @@
 			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.Purple;
 			this.dataGridView.RowsDefaultCellStyle = dataGridViewCellStyle2;
 			this.dataGridView.RowTemplate.Height = 21;
-			this.dataGridView.Size = new System.Drawing.Size(485, 289);
+			this.dataGridView.Size = new System.Drawing.Size(560, 289);
 			this.dataGridView.TabIndex = 25;
 			// 
 			// modifyButton
@@ -74,7 +75,7 @@
 			this.modifyButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.modifyButton.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
 			this.modifyButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.modifyButton.Location = new System.Drawing.Point(161, 307);
+			this.modifyButton.Location = new System.Drawing.Point(65, 307);
 			this.modifyButton.Name = "modifyButton";
 			this.modifyButton.Size = new System.Drawing.Size(165, 42);
 			this.modifyButton.TabIndex = 26;
@@ -88,7 +89,7 @@
 			this.removeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.removeButton.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
 			this.removeButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.removeButton.Location = new System.Drawing.Point(332, 307);
+			this.removeButton.Location = new System.Drawing.Point(236, 307);
 			this.removeButton.Name = "removeButton";
 			this.removeButton.Size = new System.Drawing.Size(165, 42);
 			this.removeButton.TabIndex = 27;
@@ -96,17 +97,32 @@
 			this.removeButton.UseVisualStyleBackColor = true;
 			this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
 			// 
+			// printButton
+			// 
+			this.printButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.printButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.printButton.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+			this.printButton.ForeColor = System.Drawing.Color.WhiteSmoke;
+			this.printButton.Location = new System.Drawing.Point(407, 307);
+			this.printButton.Name = "printButton";
+			this.printButton.Size = new System.Drawing.Size(165, 42);
+			this.printButton.TabIndex = 28;
+			this.printButton.Text = "印刷";
+			this.printButton.UseVisualStyleBackColor = true;
+			this.printButton.Click += new System.EventHandler(this.printButton_Click);
+			// 
 			// UserListForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.Crimson;
-			this.ClientSize = new System.Drawing.Size(509, 361);
+			this.ClientSize = new System.Drawing.Size(584, 361);
+			this.Controls.Add(this.printButton);
 			this.Controls.Add(this.removeButton);
 			this.Controls.Add(this.modifyButton);
 			this.Controls.Add(this.dataGridView);
 			this.ForeColor = System.Drawing.Color.WhiteSmoke;
-			this.MinimumSize = new System.Drawing.Size(525, 400);
+			this.MinimumSize = new System.Drawing.Size(600, 400);
 			this.Name = "UserListForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "ユーザー情報一覧";
@@ -121,5 +137,6 @@
 		private System.Windows.Forms.DataGridView dataGridView;
 		private System.Windows.Forms.Button modifyButton;
 		private System.Windows.Forms.Button removeButton;
+		private System.Windows.Forms.Button printButton;
 	}
 }

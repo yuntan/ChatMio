@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Windows.Forms;
 using System.Diagnostics;
 
@@ -54,7 +55,7 @@ namespace ChatMio
 			}
 		}
 
-		private void removeButton_Click (object sender, EventArgs e)
+		private void removeButton_Click (object sender, EventArgs e)			//削除ボタン押下時
 		{
 			if (MessageBox.Show(this, "ユーザー情報を削除してよろしいですか？", //確認用ダイアログを表示
 						"ユーザー情報削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation,
@@ -71,6 +72,18 @@ namespace ChatMio
 					return;
 				}
 				dataGridView.DataSource = SortUserData(_users);					//dataGridViewを更新
+			}
+			else {																//セルが選択されていない又は2つ以上選択されている時
+				MessageBox.Show(this, "セルを一つ選択してください", "エラー",
+					MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		private void printButton_Click (object sender, EventArgs e)				//印刷ボタン押下時
+		{
+			DataGridViewSelectedCellCollection cells = dataGridView.SelectedCells;
+			if (cells.Count == 1) {												//選択中のセルが1つあった場合
+				UserInfo.Print(PrefEnum.Hokkaido);									//印刷
 			}
 			else {																//セルが選択されていない又は2つ以上選択されている時
 				MessageBox.Show(this, "セルを一つ選択してください", "エラー",

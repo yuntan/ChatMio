@@ -85,7 +85,6 @@
       <DependentUpon>LogListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MyDebug.cs" />
-    <Compile Include="PrintUsers.cs" />
     <Compile Include="UserInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

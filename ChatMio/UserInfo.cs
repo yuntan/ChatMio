@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ChatMio
 {
@@ -16,7 +18,7 @@ namespace ChatMio
 	/// ユーザーデータ格納用クラス
 	/// </summary>
 	[Table(Name = "UserData")]
-	public class UserData											
+	public class UserData
 	{
 		[DisplayName("ユーザー名"), Column]
 		public string Name {
@@ -48,7 +50,7 @@ namespace ChatMio
 	/// <summary>
 	/// 都道府県のEnum
 	/// </summary>
-	public enum PrefEnum													 
+	public enum PrefEnum
 	{
 		Hokkaido, Aomori, Iwate, Miyagi, Akita, Yamagata,
 		Fukushima, Ibaragi, Tochigi, Gunnma, Saitama, Chiba,
@@ -63,13 +65,13 @@ namespace ChatMio
 	/// <summary>
 	/// ユーザーデータ処理用クラス
 	/// </summary>
-	public class UserInfo													
+	public class UserInfo
 	{
 		/// <summary>
 		/// mdf,ldfファイルを生成する
 		/// </summary>
 		/// <returns>成功失敗</returns>
-		private static bool CreateSqlDB ()									
+		private static bool CreateSqlDB ()
 		{
 			SqlConnection sqlConn1 = new SqlConnection(						//localhostのSQLServerへの接続
 					"Server = localhost; Integrated security = SSPI;　");
@@ -172,7 +174,7 @@ namespace ChatMio
 			catch (SystemException) {
 				return false;
 			}
-			
+
 			/*
 			if (!File.Exists(".\\ChatMioUserDB.mdf")) {						//mdfが存在しない時
 				if (!CreateSqlDB()) {										//DB生成が失敗した場合
@@ -339,6 +341,97 @@ namespace ChatMio
 			catch (SystemException) {
 				return false;
 			}
+		}
+
+		public static void Print (PrefEnum pref)
+		{
+			var xlsApp = new Excel.Application { Visible = true };			//Excelを開く
+			//string fileName = String.Format(@".\{0}.xlsx", user.Name);		
+			////TODO ファイル名の確認
+			//const string sheetName = "UserData";
+
+			//Excelファイルを新規作成
+			var xlsBook = xlsApp.Workbooks.Add();							//Excelファイルを新規作成
+			//xlsBook.SaveAs(fileName);
+			//Marshal.ReleaseComObject(xlsBook);
+			//xlsBook = null;
+
+			////Excelファイルを開く
+			//xlsBook = xlsApp.Workbooks.Open(fileName);
+
+			////シートを新規作成
+			//var xlsSheet = xlsBook.Worksheets.Add();
+			var xlsSheet = xlsBook.Sheets[1] as Excel.Worksheet;								//作業シートを選択
+			//xlsSheet.Name = sheetName;
+			xlsSheet.Select();
+
+			//シートを開く
+			//xlsSheet = xlsBook.Worksheets[sheetName] as Excel.Worksheet;
+
+			//セルに文字列を設定
+			//var xlsRange = xlsSheet.Cells[1, 1];
+			//xlsRange.Value = "testtest";
+			//Marshal.ReleaseComObject(xlsRange);
+			//xlsRange = null;
+
+			//B2からD2までを結合して中央揃えしタイトルを入れる
+			var xlsRange = xlsSheet.Range["B2", "D2"];				//B2からD2までを選択
+			xlsRange.MergeCells = true;										//結合
+			xlsRange.HorizontalAlignment = Excel.Constants.xlCenter;		//中央揃え
+			xlsRange.Font.Bold = true;										//太字
+			xlsRange.Font.Size = 16;										//サイズ
+			xlsRange.Value2 = "ChatMio";									//タイトルを入れる
+
+			//B3からD3までを結合して中央揃えし抽出条件を入れる
+			xlsRange = xlsSheet.Range["B3", "D3"];							//B3からD3までを選択
+			xlsRange.MergeCells = true;										//結合
+			xlsRange.HorizontalAlignment = Excel.Constants.xlCenter;		//中央揃え
+			xlsRange.Font.Size = 12;										//サイズ
+			xlsRange.Value2 = String.Format("出身地{0}のユーザー一覧", pref);//タイトルを入れる
+
+			//B5からD5に表のヘッダを入れる
+			xlsRange = xlsSheet.Range["B5", "D5"];						//B5からD5までを選択
+			xlsRange.Borders.Item[Excel.XlBordersIndex.xlEdgeBottom].LineStyle
+					= Excel.XlLineStyle.xlContinuous;						//横線を引っ張る
+			xlsSheet.Range["B5"].Value2 = "名前";
+			xlsSheet.Range["C5"].Value2 = "文字色";
+			xlsSheet.Range["D5"].Value2 = "フォントサイズ";
+
+			//表の内容を書き込む
+			UserData[] datas;
+			ReadAll(out datas);
+			int row = 6;
+			var q = datas.Where(data => data.IsFrom == pref);
+			foreach (var d in q) { 
+				xlsSheet.Cells[row, 2].Value2 = d.Name;
+				xlsSheet.Cells[row, 3].Value2 = d.TextColor.ToString();
+				xlsSheet.Cells[row++, 4].Value2 = d.FontSize;
+			}
+
+			//列を調整する
+			xlsSheet.Columns["B"].ColumnWidth = 20;							
+			xlsSheet.Columns["B"].NumberFormatLocal = "@";					//カラムBの表示形式を文字列にする
+			xlsSheet.Columns["C"].ColumnWidth = 20;
+			xlsSheet.Columns["C"].NumberFormatLocal = "@";					//カラムCの表示形式を文字列にする
+			xlsSheet.Columns["D"].ColumnWidth = 11;
+			xlsSheet.Columns["D"].NumberFormat = "0.0";						//カラムDの表示形式を小数点第一位までの小数とする
+
+			//印刷設定
+			xlsSheet.PageSetup.Orientation = Excel.XlPageOrientation.xlLandscape;//横向きに印刷
+			xlsSheet.PageSetup.PaperSize = Excel.XlPaperSize.xlPaperA4;		//用紙サイズをA4に
+			xlsSheet.PageSetup.PrintTitleRows = @"$5:$5";				//行タイトルを設定
+
+			//印刷
+			xlsSheet.PrintOut();
+
+			//終了時の処理
+			xlsBook.Close(false);
+			xlsApp.Quit();
+			Marshal.ReleaseComObject(xlsSheet);
+			Marshal.ReleaseComObject(xlsBook);
+			Marshal.ReleaseComObject(xlsApp);
+			xlsSheet = null; xlsBook = null; xlsApp = null;
+			GC.Collect();
 		}
 	} // end of UserInfo (class)
 } // end of ChatMio (namespace)
