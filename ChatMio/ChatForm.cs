@@ -24,7 +24,8 @@ namespace ChatMio
 		private delegate void AppendMsgCallback (UserData user, string msg);	//相手又は自分のメッセージを表示する際のデリゲート
 		private delegate void AppendSystemMsgCallback (string msg);				//アプリからのメッセージを表示する際のデリゲート
 		private delegate void AppendClosedMsgCallback (UserData user);			//チャットが閉じられた時のメッセージを表示しログを保存するためのデリゲート
-		#endregion
+        private delegate void FocusPostBoxCallback ();                          //投稿ボックスにフォーカスするためのデリゲート
+        #endregion
 
 		#region フォームロード時の処理
 		public ChatForm ()
@@ -443,6 +444,19 @@ namespace ChatMio
 				}
 			}
 		}
+
+        /// <summary>
+        /// 投稿ボックスにフォーカスする
+        /// </summary>
+        private void FocusPostBox ()
+        {
+            if (InvokeRequired) {                                               //非UIスレッドからの呼び出し時
+                Invoke(new FocusPostBoxCallback(FocusPostBox));                 //UIスレッドでInvoke
+            }
+            else {
+                postBox.Focus();                                                //投稿ボックスにフォーカスする
+            }
+        }
 		#endregion
 
 		#region Server,Clientのイベントハンドラ
@@ -467,6 +481,7 @@ namespace ChatMio
 			_isConnected = true;												//接続済みフラグを立てる
 			SetCursor(false);													//カーソルを通常のものにする
 			SetConnectMenu(true);												//接続メニューを有効化する
+            FocusPostBox();                                                     //投稿ボックスにフォーカス
 		}
 
 		/// <summary>
