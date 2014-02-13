@@ -85,7 +85,7 @@ namespace ChatMio
 					var memStream = new MemoryStream();							//一時格納用MemoryStream
 					var buff = new byte[256];
 					while (NetStream.DataAvailable) {
-						MyDebug.WriteLine(this, "_netStream.DataAvailable");
+                        //MyDebug.WriteLine(this, "NetStream.DataAvailable");
 						int readSize = NetStream.Read(buff, 0, buff.Length);
 						if (readSize == 0) {									//読み取りサイズが0の場合切断されたと判断
 							MyDebug.WriteLine(this, "readSize == 0  接続をクローズ");

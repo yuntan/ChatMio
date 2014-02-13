@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 
 namespace ChatMio
 {
@@ -68,11 +69,25 @@ namespace ChatMio
 
 			try {
 				while (true) {
-					if (TcpClient.Available > 0) {								//受け取れるデータが存在する場合
-						MyDebug.WriteLine(this, "データ受信開始");
-						var buff = new byte[TcpClient.Available];
-						NetStream.Read(buff, 0, buff.Length);					//ストリームから読み取り
-						ParseCommand(buff);										//コマンドをパース
+                    var memStream = new MemoryStream();							//一時格納用MemoryStream
+					var buff = new byte[256];
+					while (NetStream.DataAvailable) {
+                        //MyDebug.WriteLine(this, "NetStream.DataAvailable");
+						int readSize = NetStream.Read(buff, 0, buff.Length);
+						if (readSize == 0) {									//読み取りサイズが0の場合切断されたと判断
+							MyDebug.WriteLine(this, "readSize == 0  接続をクローズ");
+							InvokeChatClosedEvent();							//イベント発行
+							Stop();												//サーバーを停止
+							return;
+						}
+						memStream.Write(buff, 0, readSize);						//読み取ったサイズ分だけMemoryStreamに移す
+					}
+
+					byte[] bytCmd = memStream.ToArray();						//MemoryStreamからByteArrayに移す
+					memStream.Close();											//MemoryStreamを閉じる
+					if (bytCmd.Length != 0) {									//文字列を受け取っていた場合
+						MyDebug.WriteLine(this, "バイト長 != 0  コマンドの受信を確認");
+						ParseCommand(bytCmd);									//コマンドをパース
 
 						if (!IsConnected) {										// 接続フラグが立っていなかった場合
 							IPAddress serverIP = ((IPEndPoint) TcpClient.Client.RemoteEndPoint).Address;

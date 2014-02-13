@@ -113,6 +113,11 @@ namespace ChatMio
 				MyDebug.WriteLine(this, "コマンドCMD: {0}", cmd);
 				dataLen = BitConverter.ToInt32(bytCmd, 6);						//DATALENを取り出し
 				MyDebug.WriteLine(this, "コマンドDATALEN: {0}", dataLen);
+                if (dataLen >= bytCmd.Length) {
+                    MyDebug.WriteLine(this, "ERROR: DATALEN >= bytCmd.Lenght ({0})  " +
+                            "dataLenを書き換えます", bytCmd.Length);
+                    dataLen = bytCmd.Length - 11;
+                }
 			}
 			catch (SystemException e) {
 				MyDebug.WriteLine(this, "例外発生 パース失敗 {0}", e);
