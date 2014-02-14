@@ -73,7 +73,11 @@ namespace ChatMio
 				return;
 			}
 			dataGridView.DataSource = SortUserData(_users);						//dataGridViewにデータをセット
-		}
+
+            //foreach (var column in dataGridView.Columns.Cast<DataGridViewColumn>()) {
+            //    column.SortMode = DataGridViewColumnSortMode.Automatic;         //各列をユーザーがソート可能にする
+            //}
+        }
 
 		private void modifyButton_Click (object sender, EventArgs e)			//変更ボタン押下時
 		{
@@ -127,6 +131,7 @@ namespace ChatMio
 
         private void dataGridView_CellContentDoubleClick (object sender, DataGridViewCellEventArgs e) //表のデータのダブルクリック時
         {
+            if (e.RowIndex < 1) { return; }                                     //ColumnHeaderがダブルクリックされた場合終了
             DataGridViewRow row = dataGridView.Rows[e.RowIndex];                //ダブルクリックされた行
             var cells = row.Cells.Cast<DataGridViewCell>();                     //行に含まれるセルのコレクション
             string name = cells.Where(c => c.OwningColumn.DataPropertyName == "Name") //列名がNameのセルの値を抜き出し
