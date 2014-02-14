@@ -85,6 +85,12 @@
       <DependentUpon>LogListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MyDebug.cs" />
+    <Compile Include="PrintUsersForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PrintUsersForm.Designer.cs">
+      <DependentUpon>PrintUsersForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -114,6 +120,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="LogListForm.resx">
       <DependentUpon>LogListForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PrintUsersForm.resx">
+      <DependentUpon>PrintUsersForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

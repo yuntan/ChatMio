@@ -127,6 +127,8 @@ namespace ChatMio
 
 		private void printButton_Click (object sender, EventArgs e)				//印刷ボタン押下時
 		{
+            var form = new PrintUsersForm();
+            form.ShowDialog();
 		}
 
         private void dataGridView_CellContentDoubleClick (object sender, DataGridViewCellEventArgs e) //表のデータのダブルクリック時
