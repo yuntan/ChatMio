@@ -70,7 +70,7 @@
             this.dataGridView.RowTemplate.Height = 21;
             this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView.Size = new System.Drawing.Size(560, 289);
-            this.dataGridView.TabIndex = 25;
+            this.dataGridView.TabIndex = 3;
             this.dataGridView.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentDoubleClick);
             // 
             // modifyButton
@@ -82,7 +82,7 @@
             this.modifyButton.Location = new System.Drawing.Point(65, 307);
             this.modifyButton.Name = "modifyButton";
             this.modifyButton.Size = new System.Drawing.Size(165, 42);
-            this.modifyButton.TabIndex = 26;
+            this.modifyButton.TabIndex = 0;
             this.modifyButton.Text = "修正";
             this.modifyButton.UseVisualStyleBackColor = true;
             this.modifyButton.Click += new System.EventHandler(this.modifyButton_Click);
@@ -96,7 +96,7 @@
             this.removeButton.Location = new System.Drawing.Point(236, 307);
             this.removeButton.Name = "removeButton";
             this.removeButton.Size = new System.Drawing.Size(165, 42);
-            this.removeButton.TabIndex = 27;
+            this.removeButton.TabIndex = 1;
             this.removeButton.Text = "削除";
             this.removeButton.UseVisualStyleBackColor = true;
             this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
@@ -110,7 +110,7 @@
             this.printButton.Location = new System.Drawing.Point(407, 307);
             this.printButton.Name = "printButton";
             this.printButton.Size = new System.Drawing.Size(165, 42);
-            this.printButton.TabIndex = 28;
+            this.printButton.TabIndex = 2;
             this.printButton.Text = "印刷";
             this.printButton.UseVisualStyleBackColor = true;
             this.printButton.Click += new System.EventHandler(this.printButton_Click);
