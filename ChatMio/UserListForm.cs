@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace ChatMio
 {
@@ -14,9 +15,19 @@ namespace ChatMio
 		{
 			InitializeComponent();
 
-			//FIXME
 			//Test();															//ソートテストを実行
 		}
+
+        private string[] SelectedUsers 
+        {
+            get{
+                var rows = dataGridView.SelectedRows.Cast<DataGridViewRow>();   //選択されている行
+                var cellsInCells = rows.Select(r => r.Cells.Cast<DataGridViewCell>()); //選択されている行のセルの行ごとのコレクションのコレクション
+                var cells = cellsInCells.Select(                                //列名がNameのセルのみ抜き出しコレクション化
+                        cells2 => cells2.Where(c => c.OwningColumn.DataPropertyName == "Name").First());
+                return cells.Select(c => c.Value.ToString()).ToArray();         //セルの値を抜き出し配列に加工
+            }
+        }
 
 		private void UserListForm_Load (object sender, EventArgs e)				//フォームロード時
 		{
@@ -37,10 +48,9 @@ namespace ChatMio
 
 		private void modifyButton_Click (object sender, EventArgs e)			//変更ボタン押下時
 		{
-			DataGridViewSelectedCellCollection cells = dataGridView.SelectedCells;
-			if (cells.Count == 1) {												//選択中のセルが1つあった場合
-				var regForm = new RegisterForm(									//選択されたセルがある行のユーザー名を指定
-					dataGridView.Rows[cells[0].RowIndex].Cells[0].Value.ToString());
+            string[] names = SelectedUsers;                                     //選択中のユーザーを取得
+			if (names.Count() == 1) {											//選択中のユーザーが一人だけだった場合
+                var regForm = new RegisterForm(names[0]);						//選択されたセルがある行のユーザー名を指定
 				regForm.ShowDialog(this);										//変更フォームを表示
 
 				if (!UserInfo.ReadAll(out _users)) { 							//ユーザー情報の取得ができなかった場合
@@ -50,48 +60,53 @@ namespace ChatMio
 				dataGridView.DataSource = SortUserData(_users);					//dataGridViewのデータを更新
 			}
 			else {																//セルが選択されていない又は2つ以上選択されている時
-				MessageBox.Show(this, "セルを一つ選択してください", "エラー",
+				MessageBox.Show(this, "ユーザーを一人選択してください", "エラー",
 					MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
 		private void removeButton_Click (object sender, EventArgs e)			//削除ボタン押下時
 		{
-			if (MessageBox.Show(this, "ユーザー情報を削除してよろしいですか？", //確認用ダイアログを表示
-						"ユーザー情報削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation,
-						MessageBoxDefaultButton.Button2) == DialogResult.Cancel) {//Cancelボタン押下時
-				return;															//何もせず終了
-			}
+            string[] names = SelectedUsers;                                     //選択中のユーザーを取得
 
-			DataGridViewSelectedCellCollection cells = dataGridView.SelectedCells;
-			if (cells.Count == 1) {												//選択中のセルが1つあった場合
-				UserInfo.Remove(dataGridView.Rows[cells[0].RowIndex].Cells[0].Value.ToString());
-
-				if (!UserInfo.ReadAll(out _users)) { 							//ユーザー情報の取得ができなかった場合
-					MessageBox.Show("ユーザー情報の取得に失敗しました");		//ダイアログを表示
-					return;
-				}
-				dataGridView.DataSource = SortUserData(_users);					//dataGridViewを更新
-			}
-			else {																//セルが選択されていない又は2つ以上選択されている時
-				MessageBox.Show(this, "セルを一つ選択してください", "エラー",
-					MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+            if (names.Count() == 0) {                                           //何も選択されていなかったら
+                MessageBox.Show(this, "ユーザー情報が選択されていません。",     //エラーメッセージを表示
+                        "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error,
+                        MessageBoxDefaultButton.Button1);
+                return;                                                         //終了
+            }
+            if (MessageBox.Show(this,                                           //確認用ダイアログを表示
+                    "以下のユーザーの情報を削除してよろしいですか？\n"
+                    + String.Join("\n", names),
+                    "ユーザー情報削除", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation,
+                    MessageBoxDefaultButton.Button2) == DialogResult.Cancel) {  //Cancelボタン押下時
+                return;														    //何もせず終了
+            }
+            names.Select(n => UserInfo.Remove(n));                              
+            foreach (string name in names) {
+                if (!UserInfo.Remove(name)) {                                   //ユーザー情報を削除
+                    MessageBox.Show(this,                                       //削除に失敗したらエラーメッセージを表示
+                            "ユーザー情報の削除に失敗しました。",
+                            "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error,
+                            MessageBoxDefaultButton.Button1);
+                    return;                                                     //終了
+                }
+            }
+            if (!UserInfo.ReadAll(out _users)) { 							    //ユーザー情報の取得ができなかった場合
+                MessageBox.Show("ユーザー情報の取得に失敗しました");		    //エラーメッセージを表示
+                return;                                                         //終了
+            }
+            dataGridView.DataSource = SortUserData(_users);					    //dataGridViewを更新
 		}
 
 		private void printButton_Click (object sender, EventArgs e)				//印刷ボタン押下時
 		{
-			DataGridViewSelectedCellCollection cells = dataGridView.SelectedCells;
-			if (cells.Count == 1) {												//選択中のセルが1つあった場合
-				UserInfo.Print(PrefEnum.Hokkaido);									//印刷
-			}
-			else {																//セルが選択されていない又は2つ以上選択されている時
-				MessageBox.Show(this, "セルを一つ選択してください", "エラー",
-					MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
 		}
 
-		private void Test ()													//ソートテスト用関数
+        /// <summary>
+        /// ソートテスト用関数
+        /// </summary>
+		private void Test ()
 		{
 			foreach (int i in new int[] { 100, 1000, 10000, 100000, 1000000 }) {
 				Console.WriteLine("データ数: {0}", i);
