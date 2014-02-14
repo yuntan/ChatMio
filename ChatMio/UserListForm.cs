@@ -9,15 +9,24 @@ namespace ChatMio
 {
 	public partial class UserListForm : Form
 	{
+        /// <summary>
+        /// dataGridViewに表示される内容
+        /// </summary>
 		private UserData[] _users;
 
-		public UserListForm ()
+        #region コンストラクタ
+        public UserListForm ()
 		{
 			InitializeComponent();
 
 			//Test();															//ソートテストを実行
 		}
+        #endregion //コンストラクタ
 
+        #region private string[] SelectedUsers 選択されているデータのユーザー名の配列を取得
+        /// <summary>
+        /// 現在選択されているデータのユーザー名の配列を取得
+        /// </summary>
         private string[] SelectedUsers 
         {
             get{
@@ -28,8 +37,28 @@ namespace ChatMio
                 return cells.Select(c => c.Value.ToString()).ToArray();         //セルの値を抜き出し配列に加工
             }
         }
+        #endregion //SelectedUsers
 
-		private void UserListForm_Load (object sender, EventArgs e)				//フォームロード時
+        #region private void ModifyUserData ユーザー情報を変更する
+        /// <summary>
+        /// ユーザー情報を変更する
+        /// </summary>
+        /// <param name="name">変更するユーザーのユーザー名</param>
+        private void ModifyUserData (string name)
+        {
+            var regForm = new RegisterForm(name);						        //選択されたセルがある行のユーザー名を指定
+            regForm.ShowDialog(this);										    //変更フォームを表示
+
+            if (!UserInfo.ReadAll(out _users)) { 							    //ユーザー情報の取得ができなかった場合
+                MessageBox.Show("ユーザー情報の取得に失敗しました");		    //ダイアログを表示
+                return;
+            }
+            dataGridView.DataSource = SortUserData(_users);					    //dataGridViewのデータを更新
+        }
+        #endregion
+
+        #region GUIのイベントハンドラ
+        private void UserListForm_Load (object sender, EventArgs e)				//フォームロード時
 		{
 			if (Properties.Settings.Default.Pyon) { 							//管理者権限でログインしていた場合
 				modifyButton.Visible = true;									//modifyButtonを可視化する
@@ -50,15 +79,8 @@ namespace ChatMio
 		{
             string[] names = SelectedUsers;                                     //選択中のユーザーを取得
 			if (names.Count() == 1) {											//選択中のユーザーが一人だけだった場合
-                var regForm = new RegisterForm(names[0]);						//選択されたセルがある行のユーザー名を指定
-				regForm.ShowDialog(this);										//変更フォームを表示
-
-				if (!UserInfo.ReadAll(out _users)) { 							//ユーザー情報の取得ができなかった場合
-					MessageBox.Show("ユーザー情報の取得に失敗しました");		//ダイアログを表示
-					return;
-				}
-				dataGridView.DataSource = SortUserData(_users);					//dataGridViewのデータを更新
-			}
+                ModifyUserData(names.First());                                  //ユーザー情報を変更
+            }
 			else {																//セルが選択されていない又は2つ以上選択されている時
 				MessageBox.Show(this, "ユーザーを一人選択してください", "エラー",
 					MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -103,6 +125,18 @@ namespace ChatMio
 		{
 		}
 
+        private void dataGridView_CellContentDoubleClick (object sender, DataGridViewCellEventArgs e) //表のデータのダブルクリック時
+        {
+            DataGridViewRow row = dataGridView.Rows[e.RowIndex];                //ダブルクリックされた行
+            var cells = row.Cells.Cast<DataGridViewCell>();                     //行に含まれるセルのコレクション
+            string name = cells.Where(c => c.OwningColumn.DataPropertyName == "Name") //列名がNameのセルの値を抜き出し
+                    .First().Value.ToString();
+            ModifyUserData(name);                                               //ユーザー情報を変更する
+        }
+
+#endregion //GUIのイベントハンドラ
+
+        #region ソート関連
         /// <summary>
         /// ソートテスト用関数
         /// </summary>
@@ -251,6 +285,7 @@ namespace ChatMio
 				ret[i].Name = System.IO.Path.GetRandomFileName();
 			}
 			return ret;
-		}
-	}
+        }
+        #endregion //ソート関連
+    }
 }
