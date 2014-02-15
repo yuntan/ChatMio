@@ -62,10 +62,11 @@ namespace ChatMio
 		{
 			if (Properties.Settings.Default.Pyon) { 							//管理者権限でログインしていた場合
 				modifyButton.Visible = true;									//modifyButtonを可視化する
+                removeButton.Visible = true;									//removeButtonを可視化する
 			}									
 			else {																//管理者権限でなかった場合
 				modifyButton.Visible = false;									//modifyButtonを不可視化する
-				removeButton.Visible = false;									//modifyButtonを不可視化する
+				removeButton.Visible = false;									//removeButtonを不可視化する
 			}
 
 			if (!UserInfo.ReadAll(out _users)) { 								//ユーザー情報の取得ができなかった場合
@@ -133,6 +134,9 @@ namespace ChatMio
 
         private void dataGridView_CellContentDoubleClick (object sender, DataGridViewCellEventArgs e) //表のデータのダブルクリック時
         {
+            if (!Properties.Settings.Default.Pyon) { 							//管理者権限でのログインでなかった場合
+                return;                                                         //何もしない
+            }									
             if (e.RowIndex < 1) { return; }                                     //ColumnHeaderがダブルクリックされた場合終了
             DataGridViewRow row = dataGridView.Rows[e.RowIndex];                //ダブルクリックされた行
             var cells = row.Cells.Cast<DataGridViewCell>();                     //行に含まれるセルのコレクション
