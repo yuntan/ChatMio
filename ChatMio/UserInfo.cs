@@ -92,6 +92,8 @@ namespace ChatMio
     /// </summary>
     public class UserInfo
     {
+        const string CONNECTION_STRING = "Server = {0}; Integrated security = SSPI; Database = ChatMioUserDB;";
+
         #region private static bool CreateSqlDB mdf,ldfファイルを生成する
         /// <summary>
         /// mdf,ldfファイルを生成する
@@ -101,8 +103,8 @@ namespace ChatMio
         {
             SqlConnection sqlConn1 = new SqlConnection(						//localhostのSQLServerへの接続
                     "Server = localhost; Integrated security = SSPI;　");
-            SqlConnection sqlConn2 = new SqlConnection(						//ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+            SqlConnection sqlConn2 = new SqlConnection(                     //ChatMioUserDBへの接続
+                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
             const string tmp =  "CREATE DATABASE ChatMioUserDB ON PRIMARY " +//データベース作成用コマンド文字列
                                 "(NAME = ChatMioUserDBData,	" +
@@ -214,8 +216,8 @@ namespace ChatMio
                 }
             }
 
-            SqlConnection sqlConn = new SqlConnection(					    //ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
             // データを書き込むSQLコマンド
             const string tmp =  "INSERT INTO UserData (Name, Pass, IsFrom, TextColor, FontSize) " +
@@ -272,8 +274,8 @@ namespace ChatMio
                     return 0;												//項目は0個
                 }
 
-                SqlConnection sqlConn = new SqlConnection(					//ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+                SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+                        String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
                 const string countDataCmd = "SELECT COUNT (*) FROM UserData";
                 var sqlCmd = new SqlCommand(countDataCmd, sqlConn);
@@ -345,8 +347,8 @@ namespace ChatMio
                 return false;											    //終了
             }
 
-            SqlConnection sqlConn = new SqlConnection(					    //ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
             const string tmp = "SELECT * FROM UserData WHERE Name = '{0}'";     //データを検索し射影するコマンド
             string readDataCmd = String.Format(tmp, name);
@@ -435,8 +437,8 @@ namespace ChatMio
                 return false;											    //終了
             }
 
-            SqlConnection sqlConn = new SqlConnection(					    //ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
             const string countDataCmd = "SELECT COUNT (*) FROM UserData";   //データ数を数えるコマンド
             const string readDataCmd = "SELECT * FROM UserData";            //データを検索し射影するコマンド
@@ -521,9 +523,9 @@ namespace ChatMio
                 MyDebug.WriteLine(null, "UserInfo.Remove mdfが見つかりませんでした");
                 return false;											    //終了
             }
-                                                      
-            SqlConnection sqlConn = new SqlConnection(					    //ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+
+            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
             const string tmp = "DELETE FROM UserData WHERE Name = '{0}'";   //データを検索し消去するコマンド
             string delDataCmd = String.Format(tmp, name);
@@ -643,8 +645,8 @@ namespace ChatMio
                 }
             }
 
-            SqlConnection sqlConn = new SqlConnection(					    //ChatMioUserDBへの接続
-                    "Server = localhost; Integrated security = SSPI; Database = ChatMioUserDB;");
+            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
 
             // データを書き込むSQLコマンド
             const string addDataCmd =   "INSERT INTO UserData (Name, Pass, IsFrom, TextColor, FontSize) " +

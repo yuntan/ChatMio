@@ -177,5 +177,18 @@ namespace ChatMio.Properties {
                 return ((string)(this["ChatMioUserDBConnectionString"]));
             }
         }
+        
+        /// <summary>
+        /// SQLServerに接続するときに用いるサーバー名
+        /// </summary>
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.SettingsDescriptionAttribute("SQLServerに接続するときに用いるサーバー名")]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string SQLServer {
+            get {
+                return ((string)(this["SQLServer"]));
+            }
+        }
     }
 }
