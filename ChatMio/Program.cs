@@ -53,55 +53,5 @@ namespace ChatMio
 				}
 			}
 		}
-
-		/// <summary>
-		/// テストデータ生成用関数
-		/// </summary>
-		/// <param name="count">生成したいデータ数</param>
-		static void GenerateTestData (int count)
-		{
-			var xmlDoc = new XmlDocument();
-			XmlElement xmlRoot;
-
-			xmlRoot = xmlDoc.CreateElement("UserInfo");
-			xmlDoc.AppendChild(xmlRoot);
-
-			for (int i = 0; i < count; i++) {
-				var data = new UserData();
-				data.Name = Path.GetRandomFileName();
-
-				XmlElement userElem = xmlDoc.CreateElement("User");
-				xmlRoot.AppendChild(userElem);
-
-				XmlElement nameElem = xmlDoc.CreateElement("Name");
-				nameElem.InnerText = data.Name;
-				userElem.AppendChild(nameElem);
-
-				XmlElement passElem = xmlDoc.CreateElement("Pass");
-				passElem.InnerText = data.Pass;
-				userElem.AppendChild(passElem);
-
-				XmlElement isFromElem = xmlDoc.CreateElement("IsFrom");
-				isFromElem.InnerText = data.IsFrom.ToString();
-				userElem.AppendChild(isFromElem);
-
-				XmlElement textColorElem = xmlDoc.CreateElement("TextColor");
-				textColorElem.InnerText = data.TextColor.ToString();
-				userElem.AppendChild(textColorElem);
-
-				XmlElement fontSizeElem = xmlDoc.CreateElement("FontSize");
-				fontSizeElem.InnerText = data.FontSize.ToString();
-				userElem.AppendChild(fontSizeElem);
-
-				if ((i + 1) % 10000 == 0) { Debug.WriteLine("{0}件目", i+1); }
-			}
-
-			try {
-				xmlDoc.Save("UserInfo.xml");
-				Debug.WriteLine("書き出し完了");
-			}
-			catch (SystemException) {
-			}
-		}
 	}
 }
