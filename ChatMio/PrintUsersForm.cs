@@ -36,7 +36,9 @@ namespace ChatMio
                     "印刷しますか？\n印刷にはExcelを使用します。",
                     "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk,
                     MessageBoxDefaultButton.Button2) == DialogResult.OK) {
+                Cursor = Cursors.WaitCursor;                                //待ち状態のカーソルに変更
                 UserInfo.Print((PrefEnum) Enum.Parse(typeof(PrefEnum), comboBox.Text)); //印刷
+                Cursor = Cursors.Default;                                   //通常のカーソルに変更
             }
         }
 

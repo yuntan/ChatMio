@@ -60,6 +60,8 @@ namespace ChatMio
         #region GUIのイベントハンドラ
         private void UserListForm_Load (object sender, EventArgs e)				//フォームロード時
 		{
+            Cursor = Cursors.WaitCursor;                                        //待ち状態のカーソルに変更
+
 			if (Properties.Settings.Default.Pyon) { 							//管理者権限でログインしていた場合
 				modifyButton.Visible = true;									//modifyButtonを可視化する
                 removeButton.Visible = true;									//removeButtonを可視化する
@@ -78,6 +80,7 @@ namespace ChatMio
             //foreach (var column in dataGridView.Columns.Cast<DataGridViewColumn>()) {
             //    column.SortMode = DataGridViewColumnSortMode.Automatic;         //各列をユーザーがソート可能にする
             //}
+            Cursor = Cursors.Default;                                           //通常のカーソルに変更
         }
 
 		private void modifyButton_Click (object sender, EventArgs e)			//変更ボタン押下時
@@ -109,6 +112,9 @@ namespace ChatMio
                     MessageBoxDefaultButton.Button2) == DialogResult.Cancel) {  //Cancelボタン押下時
                 return;														    //何もせず終了
             }
+
+            Cursor = Cursors.WaitCursor;                                        //待ち状態のカーソルに変更
+
             names.Select(n => UserInfo.Remove(n));                              
             foreach (string name in names) {
                 if (!UserInfo.Remove(name)) {                                   //ユーザー情報を削除
@@ -124,6 +130,7 @@ namespace ChatMio
                 return;                                                         //終了
             }
             dataGridView.DataSource = SortUserData(_users);					    //dataGridViewを更新
+            Cursor = Cursors.Default;                                           //通常のカーソルに変更
 		}
 
 		private void printButton_Click (object sender, EventArgs e)				//印刷ボタン押下時
