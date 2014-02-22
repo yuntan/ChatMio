@@ -27,7 +27,8 @@ namespace ChatMio
 		/// <param name="message">吐きたいログ</param>
 		private static void WriteLog (string message)
 		{
-			string fileName = String.Format("{0}.log", DateTime.Now.ToString("yyMMdd"));
+            Directory.CreateDirectory(".\\applog");                     //ログファイルを入れるディレクトリを作る
+			string fileName = String.Format(".\\applog\\{0}.log", DateTime.Now.ToString("yyMMdd"));
 
 			if (!_usingLogFile) {										//ログファイルが使用中でなければ
 				_usingLogFile = true;									//使用中フラグを立てる

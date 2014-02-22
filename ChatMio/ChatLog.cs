@@ -19,8 +19,9 @@ namespace ChatMio
 		/// <returns>書き込んだファイルのファイル名</returns>
 		public static string Save (string user, string str)
 		{
+            Directory.CreateDirectory(".\\chatlog");
 			string fileName = String.Format(									//ファイル名を指定
-					"chatmio_{0}_{1}.txt", DateTime.Now.ToString("yyMMdd_HHmmss"), user);
+					".\\chatlog\\chatmio_{0}_{1}.txt", DateTime.Now.ToString("yyMMdd_HHmmss"), user);
 			using (var w = new StreamWriter(fileName)) {
 				w.Write(str);													//ファイル書き込み
 			}
@@ -35,7 +36,7 @@ namespace ChatMio
 		{
 			get
 			{
-				string[] logNames = Directory.GetFiles(@".\", "chatmio_*.txt");	//ログファイルを検索
+				string[] logNames = Directory.GetFiles(".\\chatlog\\", "chatmio_*.txt");	//ログファイルを検索
 				return logNames.Select(x => ParseLogFileName(x.Substring(2))).ToArray();//ファイル名をパースし配列にし返す
 			}
 		}
