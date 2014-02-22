@@ -173,7 +173,7 @@ namespace ChatMio
 				Console.WriteLine();
 
 				Console.WriteLine("システムのアルゴリズムでソート");
-				sw.Restart();
+                sw.Reset(); sw.Start();
 				Array.Sort(testData, new UserDataComp());
 				//UserData[] ud = SortUserData(testData, 2);
 				sw.Stop();

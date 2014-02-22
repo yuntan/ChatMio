@@ -598,18 +598,18 @@ namespace ChatMio
             int row = 6;
             var q = datas.Where(data => data.IsFrom == pref);
             foreach (var d in q) {
-                xlsSheet.Cells[row, 2].Value2 = d.Name;
-                xlsSheet.Cells[row, 3].Value2 = d.TextColor.ToString();
-                xlsSheet.Cells[row++, 4].Value2 = d.FontSize;
+                (xlsSheet.Cells[row, 2] as Excel.Range).Value2 = d.Name;
+                (xlsSheet.Cells[row, 3] as Excel.Range).Value2 = d.TextColor.ToString();
+                (xlsSheet.Cells[row++, 4] as Excel.Range).Value2 = d.FontSize;
             }
 
             //列を調整する
-            xlsSheet.Columns["B"].ColumnWidth = 20;
-            xlsSheet.Columns["B"].NumberFormatLocal = "@";					//カラムBの表示形式を文字列にする
-            xlsSheet.Columns["C"].ColumnWidth = 20;
-            xlsSheet.Columns["C"].NumberFormatLocal = "@";					//カラムCの表示形式を文字列にする
-            xlsSheet.Columns["D"].ColumnWidth = 11;
-            xlsSheet.Columns["D"].NumberFormat = "0.0";						//カラムDの表示形式を小数点第一位までの小数とする
+            (xlsSheet.Columns["B"] as Excel.Range).ColumnWidth = 20;                         //列幅を調整
+            (xlsSheet.Columns["B"] as Excel.Range).NumberFormatLocal = "@";					//B列の表示形式を文字列にする
+            (xlsSheet.Columns["C"] as Excel.Range).ColumnWidth = 20;                         //列幅を調整
+            (xlsSheet.Columns["C"] as Excel.Range).NumberFormatLocal = "@";					//C列の表示形式を文字列にする
+            (xlsSheet.Columns["D"] as Excel.Range).ColumnWidth = 11;                         //列幅を調整
+            (xlsSheet.Columns["D"] as Excel.Range).NumberFormat = "0.0";						//D列の表示形式を小数点第一位までの小数とする
 
             //印刷設定
             xlsSheet.PageSetup.Orientation = Excel.XlPageOrientation.xlLandscape;//横向きに印刷
