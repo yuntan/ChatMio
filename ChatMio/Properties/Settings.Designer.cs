@@ -167,27 +167,16 @@ namespace ChatMio.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=YUNTAN-THINKPAD;Initial Catalog=ChatMioUserDB;Integrated Security=Tru" +
-            "e")]
-        public string ChatMioUserDBConnectionString {
-            get {
-                return ((string)(this["ChatMioUserDBConnectionString"]));
-            }
-        }
-        
         /// <summary>
         /// SQLServerに接続するときに用いるサーバー名
         /// </summary>
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Configuration.SettingsDescriptionAttribute("SQLServerに接続するときに用いるサーバー名")]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
-        public string SQLServer {
+        [global::System.Configuration.DefaultSettingValueAttribute("Server = localhost; Integrated security = SSPI;")]
+        public string SQLServerConnectionString {
             get {
-                return ((string)(this["SQLServer"]));
+                return ((string)(this["SQLServerConnectionString"]));
             }
         }
     }

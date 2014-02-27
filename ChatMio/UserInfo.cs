@@ -1,17 +1,14 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Linq.Mapping;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Xml;
-using System.Collections.Generic;
-using System.Drawing;
-using System.ComponentModel;
-using System.IO;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.Linq.Mapping;
-using System.Diagnostics;
 using Excel = Microsoft.Office.Interop.Excel;
-using System.Data.Linq;
 
 namespace ChatMio
 {
@@ -92,7 +89,7 @@ namespace ChatMio
     /// </summary>
     public class UserInfo
     {
-        const string CONNECTION_STRING = "Server = {0}; Integrated security = SSPI; Database = ChatMioUserDB;";
+        const string DATABASE_STRING = " Database = ChatMioUserDB;";
 
         #region private static bool CreateSqlDB mdf,ldfファイルを生成する
         /// <summary>
@@ -102,9 +99,9 @@ namespace ChatMio
         private static bool CreateSqlDB ()
         {
             SqlConnection sqlConn1 = new SqlConnection(						//localhostのSQLServerへの接続
-                    "Server = localhost; Integrated security = SSPI;　");
+                    Properties.Settings.Default.SQLServerConnectionString);
             SqlConnection sqlConn2 = new SqlConnection(                     //ChatMioUserDBへの接続
-                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             const string tmp =  "CREATE DATABASE ChatMioUserDB ON PRIMARY " +//データベース作成用コマンド文字列
                                 "(NAME = ChatMioUserDBData,	" +
@@ -217,7 +214,7 @@ namespace ChatMio
             }
 
             SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
-                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             // データを書き込むSQLコマンド
             const string tmp =  "INSERT INTO UserData (Name, Pass, IsFrom, TextColor, FontSize) " +
@@ -274,8 +271,8 @@ namespace ChatMio
                     return 0;												//項目は0個
                 }
 
-                SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
-                        String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+                SqlConnection sqlConn = new SqlConnection(                  //ChatMioUserDBへの接続
+                        Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
                 const string countDataCmd = "SELECT COUNT (*) FROM UserData";
                 var sqlCmd = new SqlCommand(countDataCmd, sqlConn);
@@ -348,7 +345,7 @@ namespace ChatMio
             }
 
             SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
-                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             const string tmp = "SELECT * FROM UserData WHERE Name = '{0}'";     //データを検索し射影するコマンド
             string readDataCmd = String.Format(tmp, name);
@@ -438,7 +435,7 @@ namespace ChatMio
             }
 
             SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
-                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             const string countDataCmd = "SELECT COUNT (*) FROM UserData";   //データ数を数えるコマンド
             const string readDataCmd = "SELECT * FROM UserData";            //データを検索し射影するコマンド
@@ -524,8 +521,8 @@ namespace ChatMio
                 return false;											    //終了
             }
 
-            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
-                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+            SqlConnection sqlConn = new SqlConnection(                      //ChatMioUserDBへの接続
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             const string tmp = "DELETE FROM UserData WHERE Name = '{0}'";   //データを検索し消去するコマンド
             string delDataCmd = String.Format(tmp, name);
@@ -604,15 +601,15 @@ namespace ChatMio
             }
 
             //列を調整する
-            (xlsSheet.Columns["B"] as Excel.Range).ColumnWidth = 20;                         //列幅を調整
-            (xlsSheet.Columns["B"] as Excel.Range).NumberFormatLocal = "@";					//B列の表示形式を文字列にする
-            (xlsSheet.Columns["C"] as Excel.Range).ColumnWidth = 20;                         //列幅を調整
-            (xlsSheet.Columns["C"] as Excel.Range).NumberFormatLocal = "@";					//C列の表示形式を文字列にする
-            (xlsSheet.Columns["D"] as Excel.Range).ColumnWidth = 11;                         //列幅を調整
-            (xlsSheet.Columns["D"] as Excel.Range).NumberFormat = "0.0";						//D列の表示形式を小数点第一位までの小数とする
+            (xlsSheet.Columns["B"] as Excel.Range).ColumnWidth = 20;        //列幅を調整
+            (xlsSheet.Columns["B"] as Excel.Range).NumberFormatLocal = "@";	//B列の表示形式を文字列にする
+            (xlsSheet.Columns["C"] as Excel.Range).ColumnWidth = 20;        //列幅を調整
+            (xlsSheet.Columns["C"] as Excel.Range).NumberFormatLocal = "@";	//C列の表示形式を文字列にする
+            (xlsSheet.Columns["D"] as Excel.Range).ColumnWidth = 11;        //列幅を調整
+            (xlsSheet.Columns["D"] as Excel.Range).NumberFormat = "0.0";	//D列の表示形式を小数点第一位までの小数とする
 
             //印刷設定
-            xlsSheet.PageSetup.Orientation = Excel.XlPageOrientation.xlLandscape;//横向きに印刷
+            xlsSheet.PageSetup.Orientation = Excel.XlPageOrientation.xlLandscape; //横向きに印刷
             xlsSheet.PageSetup.PaperSize = Excel.XlPaperSize.xlPaperA4;		//用紙サイズをA4に
             xlsSheet.PageSetup.PrintTitleRows = @"$5:$5";			    	//行タイトルを設定
 
@@ -646,7 +643,7 @@ namespace ChatMio
             }
 
             SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
-                    String.Format(CONNECTION_STRING, Properties.Settings.Default.SQLServer));
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             // データを書き込むSQLコマンド
             const string addDataCmd =   "INSERT INTO UserData (Name, Pass, IsFrom, TextColor, FontSize) " +
