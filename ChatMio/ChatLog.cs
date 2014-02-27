@@ -36,8 +36,8 @@ namespace ChatMio
 		{
 			get
 			{
-				string[] logNames = Directory.GetFiles(".\\chatlog\\", "chatmio_*.txt");	//ログファイルを検索
-				return logNames.Select(x => ParseLogFileName(x.Substring(2))).ToArray();//ファイル名をパースし配列にし返す
+				string[] logNames = Directory.GetFiles(".\\chatlog\\", "chatmio_*.txt"); //ログファイルを検索
+				return logNames.Select(x => ParseLogFileName(x)).ToArray(); //ファイル名をパースし配列にし返す
 			}
 		}
 
@@ -48,6 +48,12 @@ namespace ChatMio
 		/// <param name="showPreview">プレビューを表示するか否か</param>
 		public static void Print (string fileName, bool showPreview)
 		{
+            fileName = String.Format(".\\chatlog\\{0}", fileName);              //参照可能なファイル名に直す
+            if (!new FileInfo(fileName).Exists) {                               //ファイルが存在しなかった場合
+                MessageBox.Show("ファイルが存在しません", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
 			LogData log = ParseLogFileName(fileName);							//ファイル名をパース
 			string textToPrint;													//印刷するテキスト
 			using (var r = new StreamReader(fileName)) {
@@ -139,21 +145,22 @@ namespace ChatMio
 		/// <returns>取り出した情報</returns>
 		private static LogData ParseLogFileName (string fileName)
 		{
+            MyDebug.WriteLine(null, "LogData.ParseLogFileName Let's parse {0}", fileName);
 			var log = new LogData();
 			try {
 				var date = String.Format("20{0}年{1}月{2}日",					//チャットの日付
-						fileName.Substring(8, 2),								//ファイル名から年を取り出す
-						int.Parse(fileName.Substring(10, 2)),					//ファイル名から月を取り出す
-						int.Parse(fileName.Substring(12, 2)));					//ファイル名から日を取り出す
+						fileName.Substring(18, 2),								//ファイル名から年を取り出す
+						int.Parse(fileName.Substring(20, 2)),					//ファイル名から月を取り出す
+						int.Parse(fileName.Substring(22, 2)));					//ファイル名から日を取り出す
 				log.Date = date;												//リストに日付を追加
 				var time = String.Format("{0}時{1}分{2}秒",						//チャットの終了時刻
-						int.Parse(fileName.Substring(15, 2)),					//ファイル名から時を取り出す
-						int.Parse(fileName.Substring(17, 2)),					//ファイル名から分を取り出す
-						int.Parse(fileName.Substring(19, 2)));					//ファイル名から秒を取り出す
+						int.Parse(fileName.Substring(25, 2)),					//ファイル名から時を取り出す
+						int.Parse(fileName.Substring(27, 2)),					//ファイル名から分を取り出す
+						int.Parse(fileName.Substring(29, 2)));					//ファイル名から秒を取り出す
 				log.EndTime = time;												//リストに終了時刻を追加
-				string herName = fileName.Substring(22, fileName.Length - 26);	//ファイル名からチャット相手の名前を取り出す
+				string herName = fileName.Substring(32, fileName.Length - 36);	//ファイル名からチャット相手の名前を取り出す
 				log.HerName = herName;											//リストに名前を追加
-				log.FileName = fileName;										//リストにファイル名を追加
+				log.FileName = fileName.Substring(10);							//リストにファイル名を追加
 				log.FileSize = new FileInfo(fileName).Length;					//リストにファイルサイズを追加
 			}
 			catch (SystemException e) {
