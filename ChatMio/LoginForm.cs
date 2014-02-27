@@ -13,7 +13,7 @@ namespace ChatMio
 			InitializeComponent();
 		}
 
-		private void LoginForm_Load (object sender, EventArgs e)			//フォームロード時
+        private void LoginForm_Load (object sender, EventArgs e)			//フォームロード時
 		{
 			nameBox.Text = Properties.Settings.Default.LastUser;			//最後に使用したユーザーを読み込み表示
 		}
@@ -92,16 +92,6 @@ namespace ChatMio
 			else if (_status == 2) {										//登録ボタン押下時
 				this.DialogResult = DialogResult.Cancel;					//DialogResultをCancelにして閉じる
 			}
-		}
-
-		private void nameBox_KeyDown (object sender, KeyEventArgs e)		//nameBoxでEnterが押下された場合
-		{
-			if (e.KeyCode == Keys.Enter) { loginButton.PerformClick(); }	//loginButtonが押下されたことにする
-		}
-
-		private void passBox_KeyDown (object sender, KeyEventArgs e)		//passBoxでEnterが押下された場合
-		{
-			if (e.KeyCode == Keys.Enter) { loginButton.PerformClick(); }	//loginButtonが押下されたことにする
 		}
 	}
 }
