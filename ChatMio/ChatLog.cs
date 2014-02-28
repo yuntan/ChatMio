@@ -55,10 +55,12 @@ namespace ChatMio
             }
 
 			LogData log = ParseLogFileName(fileName);							//ファイル名をパース
-			string textToPrint;													//印刷するテキスト
+			string firstTextToPrint;									        //印刷するテキスト
+            string textToPrint;
 			using (var r = new StreamReader(fileName)) {
-				textToPrint = r.ReadToEnd();									//ファイルからテキストをすべて読み込む
+				firstTextToPrint = r.ReadToEnd();								//ファイルからテキストをすべて読み込む
 			}
+            textToPrint=firstTextToPrint;
 			int page = 1;
 
 			var pd = new PrintDocument();				   						//PrindDocumentのインスタンス
@@ -120,7 +122,6 @@ namespace ChatMio
 				e.Graphics.DrawString(textToPrint.Substring(0, charsInPage),	//描画する
 						font, Brushes.Black, drawRect);
 				textToPrint = textToPrint.Substring(charsInPage);
-				e.HasMorePages = (textToPrint.Length > 0);						//描画するテキストがまだ残っていたら次ページも印刷
 
 				//ページ数を描画
 				size = e.Graphics.MeasureString(								//描画時の文字列の長さを計測
@@ -128,6 +129,16 @@ namespace ChatMio
 				x = Convert.ToInt32(paperWidth / 2 - size.Width / 2);			//X座標を求める
 				e.Graphics.DrawString(											//描画する   
 						page++.ToString(CultureInfo.InvariantCulture), font, Brushes.Black, x, 280);
+
+                if (textToPrint.Length > 0) {                                   //描画すべき文字がまだ残っていたら
+                    e.HasMorePages = true;                                      //次頁も印刷
+                }
+                else {                                                          //もう残っていなかったら
+                    e.HasMorePages = false;                                     //次のページはない
+                    page = 1;                                                   //値を初期化する
+                    textToPrint=firstTextToPrint;
+                }
+
 				#endregion
 			};
 
