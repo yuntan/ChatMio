@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ChatMio
@@ -91,6 +92,55 @@ namespace ChatMio
     {
         const string DATABASE_STRING = " Database = ChatMioUserDB;";
 
+        #region private static int CheckSqlTable データベースにテーブルが存在するか確認する
+        /// <summary>
+        /// データベースにテーブルが存在するか確認する
+        /// </summary>
+        /// <returns>0: データベースへの接続に失敗, 1: テーブルが未作成, 2: テーブル作成済み</returns>
+        private static int CheckSqlTable ()
+        {
+            int ret = -1;
+
+            var sqlConn1 = new SqlConnection(                               //SQLServerへの接続
+                    Properties.Settings.Default.SQLServerConnectionString);
+            var sqlConn2 = new SqlConnection(                               //ChatMioUserDBへの接続
+                    Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
+
+            try {
+                sqlConn1.Open();                                            //接続試行
+            }
+            catch (InvalidOperationException e) {
+                ret = 0;                                                    //データベースへの接続に失敗
+                MyDebug.WriteLine(null, "UserInfo.CheckSqlTable サーバーの指定が不正\n{0}", e);
+                MessageBox.Show("SQLサーバーへの接続に失敗しました。", "警告", //メッセージを表示 
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            catch (SqlException e) {
+                ret = 0;                                                      //データベースへの接続に失敗
+                MyDebug.WriteLine(null, "UserInfo.CheckSqlTable 接続エラー発生\n{0}", e);
+                MessageBox.Show("SQLサーバーへの接続に失敗しました", "警告", //メッセージを表示 
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            finally {
+                sqlConn1.Close();										    //接続を閉じる
+            }
+            if (ret >= 0) { return ret; }
+
+            try {
+                sqlConn2.Open();
+                ret = 2;
+            }
+            catch (SqlException e) {
+                ret = 1;
+                MyDebug.WriteLine(null, "UserInfo.CheckSqlTable テーブルが未作成\n{0}", e);
+            }
+            finally {
+                sqlConn2.Close();
+            }
+            return ret;
+        }
+        #endregion (CheckSqlTable)
+
         #region private static bool CreateSqlDB mdf,ldfファイルを生成する
         /// <summary>
         /// mdf,ldfファイルを生成する
@@ -98,7 +148,7 @@ namespace ChatMio
         /// <returns>成功失敗</returns>
         private static bool CreateSqlDB ()
         {
-            SqlConnection sqlConn1 = new SqlConnection(						//localhostのSQLServerへの接続
+            SqlConnection sqlConn1 = new SqlConnection(						//SQLServerへの接続
                     Properties.Settings.Default.SQLServerConnectionString);
             SqlConnection sqlConn2 = new SqlConnection(                     //ChatMioUserDBへの接続
                     Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
@@ -127,10 +177,12 @@ namespace ChatMio
                 sqlConn1.Open();											//接続開始
                 sqlCmd1.ExecuteNonQuery();									//データベース作成コマンド実行
                 MyDebug.WriteLine(null, "UserInfo.CreateSqlDB Database is created successfully");
+                sqlConn1.Close();
 
                 sqlConn2.Open();
                 sqlCmd2.ExecuteNonQuery();									//テーブル作成コマンド実行
                 MyDebug.WriteLine(null, "UserInfo.CreateSqlDB Table is created successfully");
+                sqlConn2.Close();
 
                 res = true;													//成功フラグを立てる
 
@@ -139,12 +191,8 @@ namespace ChatMio
                 MyDebug.WriteLine(null, "UserInfo.CreateSqlDB Create DB Error!\n{0}", e);
             }
             finally {
-                if (sqlConn1.State == ConnectionState.Open) {				//接続が開いている場合
-                    sqlConn1.Close();										//閉じる
-                }
-                if (sqlConn2.State == ConnectionState.Open) {				//接続が開いている場合
-                    sqlConn2.Close();										//閉じる
-                }
+                sqlConn1.Close();										//閉じる
+                sqlConn2.Close();										//閉じる
             }
 
             return res;
@@ -206,8 +254,10 @@ namespace ChatMio
              * */
             #endregion //古いXML用コード
 
-            if (!File.Exists(".\\ChatMioUserDB.mdf")) {						//mdfが存在しない時
-                MyDebug.WriteLine(null, "UserInfo.Write mdfが見つからなかったため、作成します");
+            int ret = CheckSqlTable();                                      //テーブルの存在を確認
+            if (ret == 0) { return false; }                                 //データベースに接続できない場合終了
+            else if (ret == 1) {                                            //テーブルが見つからなかった場合
+                MyDebug.WriteLine(null, "UserInfo.Write テーブルが見つからなかったため、作成します");
                 if (!CreateSqlDB()) {										//DBを生成
                     return false;                                           //失敗したら終了
                 }
@@ -266,10 +316,7 @@ namespace ChatMio
                  */
                 #endregion 古いXML用コード
 
-                if (!File.Exists(".\\ChatMioUserDB.mdf")) {					//mdfが存在しない時
-                    MyDebug.WriteLine(null, "UserInfo.Count mdfが見つかりませんでした");
-                    return 0;												//項目は0個
-                }
+                if (CheckSqlTable() != 2) { return 0; }                     //テーブルが見つからなかった場合終了
 
                 SqlConnection sqlConn = new SqlConnection(                  //ChatMioUserDBへの接続
                         Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
@@ -339,15 +386,12 @@ namespace ChatMio
 
             ret = new UserData();
 
-            if (!File.Exists(".\\ChatMioUserDB.mdf")) {					    //mdfが存在しない時
-                MyDebug.WriteLine(null, "UserInfo.Read mdfが見つかりませんでした");
-                return false;											    //終了
-            }
+            if (CheckSqlTable() != 2) { return false; }                     //テーブルが見つからなかった場合終了
 
-            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+            SqlConnection sqlConn = new SqlConnection(                      //ChatMioUserDBへの接続
                     Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
-            const string tmp = "SELECT * FROM UserData WHERE Name = '{0}'";     //データを検索し射影するコマンド
+            const string tmp = "SELECT * FROM UserData WHERE Name = '{0}'"; //データを検索し射影するコマンド
             string readDataCmd = String.Format(tmp, name);
 
             var sqlCmd = new SqlCommand(readDataCmd, sqlConn);
@@ -428,11 +472,10 @@ namespace ChatMio
              */
             #endregion 古いXML用コード
 
-            if (!File.Exists(".\\ChatMioUserDB.mdf")) {					    //mdfが存在しない時
-                MyDebug.WriteLine(null, "UserInfo.ReadAll mdfが見つかりませんでした");
+            if (CheckSqlTable() != 2) {                                     //テーブルが見つからなかった場合終了
                 datas = new UserData[0];
                 return false;											    //終了
-            }
+            }                         
 
             SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
                     Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
@@ -516,10 +559,7 @@ namespace ChatMio
              */
             #endregion 古いXML用コード
 
-            if (!File.Exists(".\\ChatMioUserDB.mdf")) {					    //mdfが存在しない時
-                MyDebug.WriteLine(null, "UserInfo.Remove mdfが見つかりませんでした");
-                return false;											    //終了
-            }
+            if (CheckSqlTable() != 2) { return false; }                     //テーブルが見つからなかった場合終了
 
             SqlConnection sqlConn = new SqlConnection(                      //ChatMioUserDBへの接続
                     Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
@@ -635,14 +675,16 @@ namespace ChatMio
         /// <param name="count">生成したいデータ数</param>
         private static void GenerateTestData (int count = 1000)
         {
-            if (!File.Exists(".\\ChatMioUserDB.mdf")) {						//mdfが存在しない時
-                MyDebug.WriteLine(null, "UserInfo.GenerateTestData mdfが見つからなかったため、作成します");
+            int ret = CheckSqlTable();                                      //テーブルの存在を確認
+            if (ret == 0) { return; }                                       //データベースに接続できない場合終了
+            else if (ret == 1) {                                            //テーブルが見つからなかった場合
+                MyDebug.WriteLine(null, "UserInfo.Write テーブルが見つからなかったため、作成します");
                 if (!CreateSqlDB()) {										//DBを生成
                     return;                                                 //失敗したら終了
                 }
             }
 
-            SqlConnection sqlConn = new SqlConnection(                     //ChatMioUserDBへの接続
+            SqlConnection sqlConn = new SqlConnection(                      //ChatMioUserDBへの接続
                     Properties.Settings.Default.SQLServerConnectionString + DATABASE_STRING);
 
             // データを書き込むSQLコマンド
