@@ -175,7 +175,8 @@ namespace ChatMio
 		{
 			if (!_isConnected) {												//接続されていない場合
 				var connForm = new ConnectForm();								//接続ダイアログ表示
-				if (connForm.ShowDialog() == DialogResult.OK) {					//接続する場合
+                connForm.StartPosition = FormStartPosition.CenterParent;        //フォームを親フォームの中央に表示
+				if (connForm.ShowDialog(this) == DialogResult.OK) {				//接続する場合
 					SetConnectMenu(false);										//接続メニューをクリック不可にする
 					_chat.Stop();												//サーバーを停止
 					StartClient(Settings.Default.LastIP);						//クライアントを起動
@@ -206,19 +207,22 @@ namespace ChatMio
 		private void chatLogMenu_Click (object sender, EventArgs e)				//「チャットログ表示」メニュークリック時
 		{
 			var logLstForm = new LogListForm();
-			logLstForm.ShowDialog();											//チャットログ一覧フォーム表示
+            logLstForm.StartPosition = FormStartPosition.CenterParent;          //フォームを親フォームの中央に表示
+			logLstForm.ShowDialog(this);										//チャットログ一覧フォーム表示
 		}
 
 		private void userListMenu_Click (object sender, EventArgs e)			//「ユーザー一覧」メニュークリック時
 		{
 			var usrLstForm = new UserListForm();
-			usrLstForm.ShowDialog();											//ユーザー一覧フォーム表示
+            usrLstForm.StartPosition = FormStartPosition.CenterParent;            //フォームを親フォームの中央に
+			usrLstForm.ShowDialog(this);										//ユーザー一覧フォーム表示
 		}
 
 		private void modifyMenu_Click (object sender, EventArgs e)
 		{
 			var regForm = new RegisterForm(_me.Name);
-			regForm.ShowDialog();												//変更用フォームを立ち上げる
+            regForm.StartPosition = FormStartPosition.CenterParent;            //フォームを親フォームの中央に
+			regForm.ShowDialog(this);											//変更用フォームを立ち上げる
 
 			if (UserInfo.Read(Settings.Default.LastUser, out _me)) {			//変更が成功していたら
 				_chat.SendUserData();											//相手にユーザーデータを再送信
