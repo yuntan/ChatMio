@@ -11,6 +11,9 @@ namespace ChatMio
 {
 	class ChatLog
 	{
+        const int PRINT_PREVIEW_DIALOG_WIDTH = 600;                             //PrintPreviewDialogの幅
+        const int PRINT_PREVIEW_DIALOG_HEIGHT = 800;                            //PrintPreviewDialogの高さ
+
 		/// <summary>
 		/// チャットログを保存するメソッド
 		/// </summary>
@@ -44,9 +47,10 @@ namespace ChatMio
 		/// <summary>
 		/// チャットログを印刷する
 		/// </summary>
+        /// <param name="owner">プレビューウィンドウを所有するトップレベルウィンドウ</param>
 		/// <param name="fileName">印刷したいチャットログのファイル名</param>
 		/// <param name="showPreview">プレビューを表示するか否か</param>
-		public static void Print (string fileName, bool showPreview)
+		public static void Print (IWin32Window owner, string fileName, bool showPreview)
 		{
             fileName = String.Format(".\\chatlog\\{0}", fileName);              //参照可能なファイル名に直す
             if (!new FileInfo(fileName).Exists) {                               //ファイルが存在しなかった場合
@@ -142,9 +146,15 @@ namespace ChatMio
 				#endregion
 			};
 
-			if (showPreview) {
-				var ppd = new PrintPreviewDialog { Document = pd };				//プレビューダイアログ
-				ppd.ShowDialog();												//ダイアログを表示
+            if (showPreview) {
+                var ppd = new PrintPreviewDialog {                              //プレビューダイアログ
+                    Document = pd,                                              //プレビューするドキュメントを指定
+                    Width = PRINT_PREVIEW_DIALOG_WIDTH,                         //幅、高さを指定
+                    Height = PRINT_PREVIEW_DIALOG_HEIGHT,
+                    StartPosition = FormStartPosition.CenterParent              //親ウィンドウの中央に表示
+                };
+
+				ppd.ShowDialog(owner);											//ダイアログを表示
 			}
 			else { pd.Print(); }												//印刷する
 		}

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace ChatMio
 {
@@ -30,7 +30,7 @@ namespace ChatMio
             string fileName = row.Cells.Cast<DataGridViewCell>()
                     .Where(c => c.OwningColumn.DataPropertyName == "FileName")  // 列のプロパティがFileNameであるセルを選ぶ
                     .First().Value.ToString();
-            ChatLog.Print(fileName, true);                                      // 印刷
+            ChatLog.Print(this, fileName, true);                                      // 印刷
 		}
 
         private void dataGridView_CellContentDoubleClick (object sender, DataGridViewCellEventArgs e) // セルがダブルクリックされた時
@@ -41,7 +41,7 @@ namespace ChatMio
             string fileName = row.Cells.Cast<DataGridViewCell>()
                     .Where(c => c.OwningColumn.DataPropertyName == "FileName")  // 列のプロパティがFileNameであるセルを選ぶ
                     .First().Value.ToString();
-            ChatLog.Print(fileName, true);                                      // 印刷
+            ChatLog.Print(this, fileName, true);                                      // 印刷
         }
 	}
 }
