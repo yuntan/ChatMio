@@ -40,7 +40,7 @@
             this.printButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.printButton.Font = new System.Drawing.Font("メイリオ", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.printButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.printButton.Location = new System.Drawing.Point(332, 307);
+            this.printButton.Location = new System.Drawing.Point(507, 507);
             this.printButton.Name = "printButton";
             this.printButton.Size = new System.Drawing.Size(165, 42);
             this.printButton.TabIndex = 30;
@@ -81,7 +81,7 @@
             this.dataGridView.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView.RowTemplate.Height = 21;
             this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView.Size = new System.Drawing.Size(485, 289);
+            this.dataGridView.Size = new System.Drawing.Size(660, 489);
             this.dataGridView.TabIndex = 28;
             this.dataGridView.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentDoubleClick);
             // 
@@ -90,13 +90,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Crimson;
-            this.ClientSize = new System.Drawing.Size(509, 361);
+            this.ClientSize = new System.Drawing.Size(684, 561);
             this.Controls.Add(this.printButton);
             this.Controls.Add(this.dataGridView);
             this.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.MinimumSize = new System.Drawing.Size(525, 400);
             this.Name = "LogListForm";
-            this.Text = "LogListForm";
+            this.Text = "チャットログ一覧";
             this.Load += new System.EventHandler(this.LogListForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.ResumeLayout(false);
